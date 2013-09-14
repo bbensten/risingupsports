@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the RUS node generic feature.
+ */
+
+include_once 'rus_node_generic.features.inc';

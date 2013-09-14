@@ -1,0 +1,8 @@
+name = RUS Related videos
+description = Related videos features for Rising Up Sports 
+package = RUS
+core = 7.x
+version = "7.x-1.0"
+project = "rus_related_videos"
+
+dependencies[] = statistics

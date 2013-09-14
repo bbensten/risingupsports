@@ -1,0 +1,1315 @@
+<?php
+/**
+ * @file Customizes the site for Rising up sports.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function rus_helper_menu() {
+  $items['admin/config/rus'] = array(
+    'title' => 'Rising Up Sports',
+    'description' => 'The RUS Configurations',
+    'access arguments' => array('rus_manage_settings'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('rus_settings_form'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/config/rus/settings'] = array(
+    'title' => 'RUS Settings',
+    'description' => 'Core configurations and options for the RUS network.',
+    'access arguments' => array('rus_manage_settings'),
+    'weight' => 0,
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+  $items['admin/config/rus/social'] = array(
+    'title' => 'RUS Social',
+    'description' => 'The social icons in the header.',
+    'access arguments' => array('rus_manage_settings'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('rus_social_form'),
+    'weight' => 0,
+    'type' => MENU_LOCAL_TASK,
+  );
+  $items['admin/config/rus/stream'] = array(
+    'title' => 'RUS Streaming',
+    'description' => 'Set up options for streaming events',
+    'access arguments' => array('rus_manage_settings'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('rus_streaming_form'),
+    'weight' => 2,
+    'type' => MENU_LOCAL_TASK,
+  );
+  
+  $items['subscribe'] = array(
+    'title' => 'Subscribe',
+    'description' => 'Subscribe',
+	'access callback' => TRUE,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('rus_subscription_form'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  
+  return $items;
+}
+
+function rus_subscription_form($form, &$form_state){
+  
+  global $user;
+  
+    
+  module_load_include('inc', 'commerce_payment', 'includes/commerce_payment.credit_card');
+  module_load_include('module', 'addressfield');
+  module_load_include('module', 'user', 'user');
+  module_load_include('module', 'commerce_paypal_wpp', 'modules/wpp/commerce_paypal_wpp');
+
+  $payment_method['settings'] = commerce_paypal_wpp_default_settings();
+
+  // Prepare the fields to include on the credit card form.
+  $fields = array();
+
+  // Include the card security code field if specified.
+  if ($payment_method['settings']['code']) {
+    $fields['code'] = '';
+  }
+
+  // Add the credit card types array if necessary.
+  $card_types = array_diff(array_values($payment_method['settings']['card_types']), array(0));
+
+  if (!empty($card_types)) {
+    $fields['type'] = $card_types;
+  }
+
+  // Add the start date and issue number if processing a Maestro or Solo card.
+  if (in_array('maestro', $card_types) || in_array('solo', $card_types)) {
+    $fields += array(
+      'start_month' => '',
+      'start_year' => '',
+      'issue' => '',
+    );
+  }
+
+  $form['countries'] = array(
+      '#type' => 'select',
+      '#options' => _addressfield_country_options_list(),
+      '#default_value' => 'US',
+      '#attributes' => array('onclick' => "open('".$url."');"),
+      
+    );
+
+  $form['full_name'] = array(
+      '#type' => 'textfield',
+      '#size' => 25,
+      '#default_value' => 'Name',
+      '#attributes' => array('placeholder' => "Name", 
+      					'onclick' => 'this.value = ""'),
+    );
+    
+  
+  $form['city'] = array(
+      '#type' => 'textfield',
+      '#size' => 10,
+      '#default_value' => 'City',
+      '#attributes' => array('placeholder' => "City", 
+      					'onclick' => 'this.value = ""'),
+  );
+
+  $form['street'] = array(
+      '#type' => 'textfield',
+      '#size' => 40,
+      '#default_value' => 'Street Address',
+     '#attributes' => array('placeholder' => "Stree Address", 
+      					'onclick' => 'this.value = ""'),
+
+  );
+  
+  
+  $form['state'] = array(
+      '#type' => 'textfield',
+      '#size' => 10,
+      '#default_value' => 'State/Province',
+      '#attributes' => array('placeholder' => "State/Province", 
+      					'onclick' => 'this.value = ""'),
+  );
+  
+   $form['zip'] = array(
+      '#type' => 'textfield',
+      '#size' => 8,
+      '#default_value' => 'ZIP/Postal Code',
+  );
+  
+  $form['membership_type'] = array(
+      '#type' => 'option',
+      '#size' => 8,
+      '#default_value' => 'ZIP/Postal Code',
+  );
+  
+  $membership_amount = array('4.95'=>'4.95','7.95' => '7.95', '75' => '75');
+  $membership_type_duration = array('1' => '1', '30' => '30','365' => '365');
+  
+  $form['membership_amount'] = array(
+    '#type' => 'radios',
+    '#default_value' => '7.95',
+    '#options' => $membership_amount,
+  );
+  
+   $form['membership_type_duration'] = array(
+    '#type' => 'radios',
+    '#default_value' => '30',
+    '#options' => $membership_type_duration,
+  );
+  
+   $form['currency_code'] = array(
+    '#type' => 'hidden',
+    '#default_value' => 'USD',
+  );
+  
+  
+  $form['submit'] = array(
+      '#type' => 'submit',
+      '#theme' => 'button',
+      '#button_type' => 'image_button',
+      '#value' => t('Checkout'),
+      '#weight' => 10000,
+      '#attributes' => array('background-image' => drupal_get_path('theme', 'risingsports') . '/images/cart.png', 'alt' => t('Search')),
+  );
+
+  
+  $forms_card =  commerce_payment_credit_card_form($fields);
+  
+  $forms = array_merge($form, $forms_card);
+  
+  global $user;
+  
+  if(!$user->uid){ 
+  	$form_user = user_register_form($form, $form_state);
+  	$forms = array_merge($forms, $form_user);
+  }
+  
+  $forms['#submit'][] = 'rus_subscription_form_submit';  
+  
+  return $forms;
+}
+
+
+
+function rus_subscription_form_submit($form, &$form_state){
+  
+  if($form_state['values']['membership_type_duration'] == '1'){
+  	
+  	$form_state['values']['membership_amount'] = 4.95;
+  
+  }elseif($form_state['values']['membership_type_duration'] == '30'){
+	  	$form_state['values']['membership_amount'] = 7.95;
+	  
+  }else{
+  	
+  	  	$form_state['values']['membership_amount'] = 75;
+  }
+ 
+  module_load_include('module', 'commerce_paypal_wpp', 'modules/wpp/commerce_paypal_wpp');
+  module_load_include('module', 'user', 'user');
+
+  $payment_method['settings'] = commerce_paypal_wpp_default_settings();	
+
+  $currency_code = $form_state['values']['currency_code'];
+
+  $valid_billing_address = TRUE;
+
+    if (empty($form_state['values']['full_name'])) {
+      $valid_billing_address = FALSE;
+    }
+
+
+  // Without a valid villing address, display and log the error messages and
+  // prevent the payment attempt.
+  if (!$valid_billing_address) {
+    // Display a general error to the customer if we can't find the address.
+    drupal_set_message(t('We cannot process your credit card payment without a valid billing address.'), 'error');
+
+    // Provide a more descriptive error message in the failed transaction and
+    // the watchdog.
+    $transaction = commerce_payment_transaction_new('paypal_wpp', $order->order_id);
+    $transaction->instance_id = $payment_method['instance_id'];
+    $transaction->amount = $form_state['values']['membership_amount'];
+    $transaction->currency_code = $form_state['values']['currency_code'];
+    $transaction->payload[REQUEST_TIME] = array();
+    $transaction->status = COMMERCE_PAYMENT_STATUS_FAILURE;
+    $transaction->message = t('The customer must be able to supply a billing address through the default address field of the core billing information customer profile to pay via PayPal WPP.');
+    commerce_payment_transaction_save($transaction);
+
+    watchdog('commerce_paypal_wpp', 'A PayPal WPP transaction failed because the order did not have a value for the default billing address field. Your order or checkout configuration may need to be adjusted to support credit card payment via PayPal WPP.', NULL, WATCHDOG_ERROR);
+
+    return FALSE;
+  }
+
+  // Build a name-value pair array for this transaction.
+  $nvp = array(
+    'METHOD' => 'DoDirectPayment',
+    'PAYMENTACTION' => commerce_paypal_wpp_payment_action($payment_method['settings']['txn_type']),
+    'NOTIFYURL' => commerce_paypal_ipn_url($payment_method['instance_id']),
+
+    'CREDITCARDTYPE' => commerce_paypal_wpp_card_type($form_state['values']['credit_card']['type']),
+    'ACCT' => $form_state['values']['credit_card']['number'],
+    'EXPDATE' => $form_state['values']['credit_card']['exp_month'] . $form_state['values']['credit_card']['exp_year'],
+    'AMT' => $form_state['values']['membership_amount'],
+    'CURRENCYCODE' => $currency_code,
+  );
+
+  // Add the start date and issue number if processing a Maestro or Solo card.
+  if (in_array($form_state['values']['credit_card']['type'], array('maestro', 'solo'))) {
+    if (!empty($form_state['values']['credit_card']['start_month']) && !empty($form_state['values']['credit_card']['start_year'])) {
+      $nvp['STARTDATE'] = $form_state['values']['credit_card']['start_month'] . $form_state['values']['credit_card']['start_year'];
+    }
+
+    if (!empty($form_state['values']['credit_card']['issue'])) {
+      $nvp['ISSUENUMBER'] = $form_state['values']['credit_card']['issue'];
+    }
+  }
+
+  // Add the CVV if entered on the form.
+  if (isset($form_state['values']['credit_card']['code'])) {
+    $nvp['CVV2'] = $form_state['values']['credit_card']['code'];
+  }
+
+  // Build a description for the order.
+  $description = array();
+
+  foreach ($order_wrapper->commerce_line_items as $delta => $line_item_wrapper) {
+    if (in_array($line_item_wrapper->type->value(), commerce_product_line_item_types())) {
+      $description[] = round($line_item_wrapper->quantity->value(), 2) . 'x ' . $line_item_wrapper->line_item_label->value();
+    }
+  }
+
+    $billing_address = array('thoroughfare' => $form_state['values']['street'],
+   					 'premise' => $form_state['values']['street'],
+   					 'locality' => $form_state['values']['city'],
+   					 'administrative_area' => $form_state['values']['state'],
+   					 'postal_code' => $form_state['values']['zip'],
+   					  'country' => $form_state['values']['country'],
+   					  'name_line' => $form_state['values']['full_name'], 
+   					 ); 
+
+  if (empty($billing_address['first_name'])) {
+    $name_parts = explode(' ', $billing_address['name_line']);
+    $billing_address['first_name'] = array_shift($name_parts);
+    $billing_address['last_name'] = implode(' ', $name_parts);
+  }
+
+  // Add additional transaction invormation to the request array.
+  $nvp += array(
+    // Order Information; we append the timestamp to the order number to allow
+    // for multiple transactions against the same order.
+    'INVNUM' => substr($order->order_number, 0, 127) . '-' . REQUEST_TIME,
+    'CUSTOM' => substr(t('Order @number', array('@number' => $order->order_number)), 0, 256),
+    'DESC' => substr(implode(', ', $description), 0, 127),
+
+    // Customer Information
+    'EMAIL' => substr($user->mail, 0, 127),
+    'IPADDRESS' => substr($ip_address, 0, 15),
+    'FIRSTNAME' => substr($billing_address['first_name'], 0, 25),
+    'LASTNAME' => substr($billing_address['last_name'], 0, 25),
+    'STREET' => substr($billing_address['thoroughfare'], 0, 100),
+    'STREET2' => substr($billing_address['premise'], 0, 100),
+    'CITY' => substr($billing_address['locality'], 0, 40),
+    'STATE' => substr($billing_address['administrative_area'], 0, 40),
+    'COUNTRYCODE' => $billing_address['country'],
+    'ZIP' => substr($billing_address['postal_code'], 0, 20),
+  );
+
+
+
+  // Submit the request to PayPal.
+  $response = commerce_paypal_wpp_request($payment_method, $nvp, $order);
+
+  // Prepare a transaction object to log the API response.
+  $transaction = commerce_payment_transaction_new('paypal_wpp', $order->order_id);
+  $transaction->instance_id = $payment_method['instance_id'];
+  $transaction->amount = $form_state['values']['membership_amount'];
+  $transaction->currency_code = $currency_code;
+  $transaction->payload[REQUEST_TIME] = $response;
+
+  // Build a meaningful response message.
+  $message = array();
+  $action = commerce_paypal_wpp_reverse_payment_action($nvp['PAYMENTACTION']);
+
+  // Set the remote ID and transaction status based on the acknowledgment code.
+  switch ($response['ACK']) {
+    case 'SuccessWithWarning':
+    case 'Success':
+      $transaction->remote_id = $response['TRANSACTIONID'];
+
+      // Set the transaction status based on the type of transaction this was.
+      switch ($payment_method['settings']['txn_type']) {
+        case COMMERCE_CREDIT_AUTH_ONLY:
+          $transaction->status = COMMERCE_PAYMENT_STATUS_PENDING;
+          break;
+
+        case COMMERCE_CREDIT_AUTH_CAPTURE:
+          $transaction->status = COMMERCE_PAYMENT_STATUS_SUCCESS;
+          break;
+      }
+
+      if ($response['ACK'] == 'SuccessWithWarning') {
+        $message[0] = '<b>' . t('@action - Success (with warning)', array('@action' => $action)) . '</b>';
+        $message[] = t('@severity @code: @message', array('@severity' => $response['L_SEVERITYCODE0'], '@code' => $response['L_ERRORCODE0'], '@message' => $response['L_LONGMESSAGE0']));
+      }
+      else {
+        $message[] = '<b>' . t('@action - Success', array('@action' => $action)) . '</b>';
+      }
+
+      // Add the AVS response if present.
+      if (!empty($response['AVSCODE'])) {
+        $message[] = t('AVS response: @avs', array('@avs' => commerce_paypal_avs_code_message($response['AVSCODE'])));
+      }
+
+      // Add the CVV response if present.
+      if ($payment_method['settings']['code'] && !empty($response['CVV2MATCH'])) {
+        $message[] = t('CVV2 match: @cvv', array('@cvv' => commerce_paypal_cvv_match_message($response['CVV2MATCH'])));
+      }
+
+      break;
+
+    case 'FailureWithWarning':
+    case 'Failure':
+    default:
+      // Create a failed transaction with the error message.
+      $transaction->status = COMMERCE_PAYMENT_STATUS_FAILURE;
+      $message[] = '<b>' . t('@action - Failure', array('@action' => $action)) . '</b>';
+      $message[] = t('@severity @code: @message', array('@severity' => $response['L_SEVERITYCODE0'], '@code' => $response['L_ERRORCODE0'], '@message' => $response['L_LONGMESSAGE0']));
+  }
+
+  // Store the type of transaction in the remote status.
+  $transaction->remote_status = $nvp['PAYMENTACTION'];
+
+  // Set the final message.
+  $transaction->message = implode('<br />', $message);
+
+      // If the payment failed, display an error and rebuild the form.
+  if (!in_array($response['ACK'], array('SuccessWithWarning', 'Success'))) {
+    drupal_set_message(t('We encountered an error processing your payment. Please verify your credit card details or try a different card.'), 'error');
+    return FALSE;
+  }
+
+   //update user role
+  global $user;
+  $account = user_load($user->uid);
+  $default_timezone = variable_get('date_default_timezone', 'UTC');
+  $datenow = gmdate('Y-m-d H:i:s');
+  if (empty($account->field_subscription_expire_date)) {
+    //$start_date = format_date(strtotime('now'), 'custom', 'Y-m-d H:i:s', $default_timezone);
+    $start_date = $datenow;
+  }
+  else {
+    $start_date = $account->field_subscription_expire_date[LANGUAGE_NONE][0]['value'];
+
+    if ($start_date < $datenow) {
+      $start_date = $datenow;
+    }
+  }
+
+  $total = $form_state['values']['membership_type_duration'];
+  
+  $new_date_value = strtotime('+' . $total . ' days', strtotime($start_date . ' UTC'));
+  $new_date_value = format_date($new_date_value, 'custom', 'Y-m-d H:i:s', 'UTC');
+  $account->field_subscription_expire_date[LANGUAGE_NONE][0] = array(
+    'value' => $new_date_value,
+    'timezone' => 'UTC',
+    'timezone_db' => 'UTC',
+  );
+  
+  $rid = db_query("SELECT rid FROM {role} WHERE name = 'Subscriber'")->fetchColumn(0);
+  if (!isset($account->roles[$rid])) {
+    $account->roles[$rid] = 'Subscriber';
+  }
+
+   
+  user_save($account);
+
+  $destination = drupal_get_destination();
+  
+  drupal_set_message('You have subscribed successfully');
+  
+  if(!empty($destination)){
+	$form_state['redirect'] = $destination;
+  }else{
+	$form_state['redirect'] = '';
+  }
+
+}
+
+
+/**
+ * Settings Form function.
+ */
+function rus_settings_form($form, &$form_state){
+  $form['rus_settings'] = array('#type' => 'vertical_tabs');
+  $form['media'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Media Outlets'),
+    '#group' => 'rus_settings',
+  );
+  $form['media']['rus_media_emails'] = array(
+    '#title' => t('Media E-mail address'),
+    '#type' => 'textarea',
+    '#description' => "Place one media contact per line. Must be a valid email address.",
+    '#size' => 32,
+    '#required' => TRUE,
+    '#default_value' => variable_get('rus_media_emails','')
+  );
+  $form['sponsors'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Sponsors'),
+    '#group' => 'rus_settings',
+  );
+  $form['sponsors']['rus_scoreboard_sponsors'] = array(
+    '#title' => t('Scoreboard Sponsors'),
+    '#type' => 'textarea',
+    '#description' => "Place one sponsor per line.",
+    '#size' => 32,
+    '#required' => TRUE,
+    '#default_value' => variable_get('rus_scoreboard_sponsors','')
+  );
+
+  return system_settings_form($form);
+}
+
+/**
+ * Validates that email addresses are valid in the settings form.
+ */
+function rus_settings_form_validate($form, &$form_state){
+  //Test media emails to ensure valid
+  $lines = explode("\n",$form_state['values']['rus_media_emails']);
+  foreach($lines as $line) {
+    $mail = trim($line);
+    if(valid_email_address($mail) == FALSE && $mail != ""){
+      form_set_error('rus_media_emails', t('The e-mail address %mail is not valid.', array('%mail' => $mail)));
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_page().
+ */
+function rus_helper_preprocess_page(&$variables) {
+  drupal_add_css(drupal_get_path('module', 'rus_helper') . '/css/rus_helper_scoreboard.css');
+  drupal_add_js(drupal_get_path('module', 'rus_helper') . '/js/rus_helper.js');
+}
+
+/**
+ * Implements hook_node_update().
+ */
+//function rus_helper_node_update($node){
+  //@todo: if published, find type, find stats, load emails, send out to local media.
+//}
+
+/**
+ * Implements hook_jcarousel_skin_info().
+ */
+function rus_helper_jcarousel_skin_info() {
+  $skins = array();
+
+  $skins['rus-scoreboard'] = array(
+    'title' => t('RUS Scoreboard'),
+    'file' => 'skins/rus-scoreboard/jcarousel-rus-scoreboard.css',
+  );
+  $skins['rus-scoreboard-filter'] = array(
+    'title' => t('RUS Scoreboard Filter'),
+    'file' => 'skins/rus-scoreboard/jcarousel-rus-scoreboard-filter.css',
+  );
+
+  return $skins;
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function rus_helper_block_info() {
+  $blocks = array();
+  $blocks['scoreboard'] = array(
+    'info' => t('Scoreboard'),
+    'cache' => DRUPAL_NO_CACHE,
+  );
+  $blocks['mega-browse-all'] = array(
+    'info' => t('Mega Dropdown - Browse All'),
+    'cache' => DRUPAL_CACHE_GLOBAL,
+  );
+  $blocks['rus-social-icons-header'] = array(
+    'info' => t('Social Icons Header'),
+    'cache' => DRUPAL_CACHE_GLOBAL,
+  );
+  $blocks['rus-front-page'] = array(
+    'info' => t('Front page Event or Video Block'),
+    'cache' => DRUPAL_NO_CACHE,
+  );
+  $blocks['rus-video-description'] = array(
+    'info' => t('Description block for videos'),
+    'cache' => DRUPAL_CACHE_PER_PAGE,
+  );
+  $blocks['rus-event-callout'] = array(
+    'info' => t('Callout block that alerts users to ongoing events.'),
+    'cache' => DRUPAL_CACHE_GLOBAL,
+  );
+  if (module_exists('openx')) {
+    $zones = variable_get('openx_zones', array());
+    foreach ($zones as $index => $zone) {
+      if ($zone['id']) {
+        $name = str_replace(' ', '', $zone['name']);
+        $delta = 'rus_' . $name;
+        $blocks[$delta] = array(
+          'info' => t('RUS OpenX Zone !id (!name)', array('!id' => $zone['id'], '!name' => (empty($zone['name']) ? t('untitled') : $zone['name']))),
+          'cache' => DRUPAL_CACHE_GLOBAL,
+          'status' => FALSE,
+        );
+        // The blocks that show up on the browse and search pages.
+        if ($delta == 'rus_OpenX-Filter-728x90') {
+          $blocks[$delta]['status'] = TRUE;
+          $blocks[$delta]['region'] = 'content';
+          $blocks[$delta]['pages'] = "browse\nsearch\nsearch/*";
+          $blocks[$delta]['weight'] = -32;
+          $blocks[$delta]['visibility'] = BLOCK_VISIBILITY_LISTED;
+        }
+        if ($delta == 'rus_OpenX-All-200x90') {
+          $delta = 'rus_OpenX-Filter-200x90';
+          $blocks[$delta]['info'] = t('RUS OpenX Zone !id (OpenX-Filter-200x90)', array('!id' => $zone['id']));
+          $blocks[$delta]['cache'] = DRUPAL_CACHE_GLOBAL;
+          $blocks[$delta]['status'] = TRUE;
+          $blocks[$delta]['region'] = 'content';
+          $blocks[$delta]['pages'] = "browse\nsearch\nsearch/*";
+          $blocks[$delta]['weight'] = -31;
+          $blocks[$delta]['visibility'] = BLOCK_VISIBILITY_LISTED;
+        }
+      }
+    }
+  }
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function rus_helper_block_view($delta = '') {
+  $block = array();
+  switch ($delta) {
+    case 'scoreboard':
+      $html = "";
+
+      $sport_filter_tid = empty($_GET['field_term_sport_tid']) ? 0 : intval($_GET['field_term_sport_tid']);
+
+      //Sponsor Variables
+     // $html_sponsors = '<div class="scoreboard-sponsor">' . openx_invoke('OpenX-Sponsor-Text') . '</div>';
+
+      //Find the vid for sports
+      $vocab = taxonomy_vocabulary_machine_name_load('sport');
+      $vid = ($vocab->vid > 0) ? $vocab->vid : 0;
+
+      //Find all sports tids
+      $terms_sports = array();
+      $sports_terms = taxonomy_get_tree($vid);
+      foreach ($sports_terms as $term) {
+        $terms_sports[$term->tid] = $term->name;
+      }
+
+      //Find game tid
+      $term_game = 0;
+      $query = db_select('taxonomy_term_data', 'td');
+      $query->fields('td', array('tid'));
+      $query->condition('td.name', 'game');
+      $term_game = $query->execute()->fetchField();
+
+      //Find school year tid
+      $vocab = taxonomy_vocabulary_machine_name_load('year');
+      $vid = ($vocab->vid > 0) ? $vocab->vid : 0;
+      $query = db_select('taxonomy_term_data', 'td');
+      $query->fields('td', array('tid'));
+      $query->condition('td.vid', $vid);
+      $query->orderBy('td.weight', 'ASC');
+      $query->range(0, 1);
+      $results = $query->execute();
+      $term_year_tid = $query->execute()->fetchField();
+
+      ////Find the tid's of the 100 most recently published videos/scoreboard items
+      //@todo -> Add filter for GAME only (not interview or feature)
+      $terms_sports_used = array();
+      $query = db_select('node', 'n');
+      $query->fields('n', array('nid'));
+      $t_alias = $query->innerJoin('taxonomy_index', 't', '%alias.nid = n.nid');
+      $t2_alias = $query->innerJoin('taxonomy_index', 't2', '%alias.nid = n.nid');
+      $query->addField($t_alias, 'tid');
+      $query->condition('n.type', array('video', 'scoreboard'), 'IN');
+      $query->condition('n.status', 1);
+      $query->condition("${t_alias}.tid", array_keys($terms_sports), 'IN');
+      $query->condition("${t2_alias}.tid", $term_year_tid);
+      $query->range(0, 500);
+      $query->orderBy('n.created', 'DESC');
+      $results = $query->execute();
+      foreach($results as $record) {
+        $terms_sports_used[$record->tid] = $record->tid;
+      }
+
+      //Validate $sport_filter_tid or set new default
+      if (($sport_filter_tid == 0 && count($terms_sports_used > 0)) || ($sport_filter_tid > 0 && !in_array($sport_filter_tid, $terms_sports_used))) {
+        $sport_filter_tid = reset($terms_sports_used);
+      }
+      else {
+        //Make sure $sport_filter_tid is set to the first item in the array
+        $terms_sports_used = array_diff($terms_sports_used, array($sport_filter_tid));
+        array_unshift($terms_sports_used, $sport_filter_tid);
+      }
+
+      //Create themed links
+      $links = array();
+      foreach ($terms_sports_used as $term) {
+        $class = array();
+        if ($sport_filter_tid == $term) {
+          $class[] = 'scoreboard-active-trail';
+        }
+
+        $links[$term] = array(
+          'title' => $terms_sports[$term],
+          'href' => $_GET['q'],
+          'absolute' => TRUE,
+          'query' => array('field_term_sport_tid' => $term),
+          'attributes' => array(
+            'class' => $class,
+          ),
+        );
+      }
+
+      $variables = array(
+        'links' => $links,
+        'attributes' => array('class' => array('links', 'scoreboard_filter', 'jcarousel-skin-rus-scoreboard-filter')),
+      );
+      //$html_filters = '<div id="scoreboard_filter_wrapper" class="scoreboard_filter_wrapper jcarousel-skin-default">' . theme('links', $variables) . '</div>';
+      $html_filters = theme('links', $variables);
+      jcarousel_add('scoreboard_filter', array('skin' => 'rus-scoreboard-filter', 'itemFallbackDimension' => 200)); //,
+      //jcarousel_add('scoreboard_filter_wrapper', array('vertical' => FALSE, 'skin' => 'tango'));
+      //print theme('jcarousel', array('items' => $items, 'options' => $options, 'identifier' => $identifier));
+      //@todo. Use theme_html_tag for wrapper
+
+
+      $html_scoreboard = views_embed_view('scoreboard', 'block_1', $sport_filter_tid, $term_year_tid);
+
+      $html = $html_sponsors . $html_filters . $html_scoreboard;
+      //@todo: Get random sponsor
+      //@todo: attach jquery tools scrollable
+      //@todo: CSS (inline, toggles)
+      //@todo: cache block 3 hours
+
+      $block['subject'] = t('');
+      $block['content'] = $html;
+      break;
+    case 'mega-browse-all':
+      $element_link = array(
+        '#prefix' => '<div class="mega-browse-all-link">',
+        '#suffix' => '</div>',
+        '#type' => 'link',
+        '#title' => variable_get('rus_helper_browse_title', t('Browse Sports')),
+        '#href' => 'browse',
+      );
+
+      $element = array(
+        '#type' => 'html_tag',
+        '#tag' => 'div',
+        '#attributes' => array(
+          'class' => array(
+            'mega-browse-all-wrapper',
+          )
+        ),
+        '#value' => drupal_render($element_link),
+      );
+
+
+      $block['subject'] = t('');
+      $block['content'] = $element;
+      break;
+    case 'rus-social-icons-header':
+      $html = '';
+      $values = variable_get('rus_social', '');
+
+      $img_hash = array(
+        'Youtube' => 'youtube_w20.png',
+        'Google' => 'googleplus_w20.png',
+        'Twitter' => 'twitter_w20.png',
+        'Facebook' => 'facebook_w20.png',
+      );
+
+      $weight_hash = array();
+      foreach($values as $key => $data) {
+        $weight_hash[$data['weight']] = $key;
+      }
+      ksort($weight_hash);
+
+      foreach($weight_hash as $weight => $key) {
+        if($values[$key]['url'] != ""){
+          $url = $values[$key]['url'];
+          $img = '/sites/all/modules/custom/rus_modules/rus_helper/images/social/'.$img_hash[$key];
+          $html = $html . "<a href='${url}'><img src='${img}' /></a>";
+        }
+      }
+      $block['subject'] = ''; //t('Social Icons Header');
+      $block['content'] = $html;
+      break;
+    case 'rus-front-page':
+      $block['subject'] = t('Video');
+      $block['content'] = array(
+        '#pre_render' => array('_rus_helper_rus_front_page_pre_render'),
+        '#cached' => array(
+          'keys' => array(
+            'rus_helper_front_page',
+          ),
+          'expire' => REQUEST_TIME + 60, // 1 minute?
+          'granularity' => DRUPAL_CACHE_PER_PAGE,
+        ),
+      );
+      break;
+    case 'rus-video-description':
+      if ((arg(0) == 'node') && is_numeric(arg(1)) && (arg(2) == '')) {
+        $block['subject'] = t('Description');
+        $block['content'] = array(
+          '#theme' => 'rus_video_description',
+          '#pre_render' => array('_rus_helper_rus_video_description_pre_render'),
+          '#nid' => arg(1),
+        );
+      }
+      break;
+    case 'rus-event-callout':
+      $block['subject'] = t('Live Events');
+      $block['content'] = array(
+        '#theme' => 'rus_event_callout',
+        '#pre_render' => array('_rus_helper_rus_event_callout_pre_render'),
+        '#attached' => array(
+          'js' => array(
+            array(
+              'data' => array('eventCalloutExpiration' => variable_get('rus_helper_rus_event_callout_timeout', 3600000)),
+              'type' => 'setting',
+            ),
+          ),
+        ),
+      );
+      break;
+    case 'rus_OpenX-Filter-200x90':
+      // Filter block should contain the same as the All block for 200x90 ads.
+      $delta = 'rus_OpenX-All-200x90';
+    default:
+      if (preg_match('/^rus_(.*)$/i', $delta, $matches) && module_exists('openx')) {
+        $delta = $matches[1];
+        $class = str_replace('_', '-', $delta);
+
+        $block = array(
+          'content' => array(
+            '#attributes' => array(
+              'class' => array('rus-openx-block', $class),
+            ),
+            '#markup' => openx_invoke($delta),
+          ),
+        );
+      }
+  }
+  return $block;
+}
+
+/**
+ * Pre-render function for the front page video.
+ */
+function _rus_helper_rus_front_page_pre_render($elements) {
+  $output = '';
+  $now = new DateTime('now', new DateTimeZone('UTC'));
+  $now_format = $now->format('Y-m-d H:i:s');
+
+  $query = "SELECT n.nid FROM {field_data_field_datetime} f INNER JOIN {node} n ON (n.vid = f.revision_id) WHERE n.status = :status AND n.type = :type AND :now BETWEEN field_datetime_value AND field_datetime_value2";
+  $result = db_query_range($query, 0, 1, array(
+    ':status' => NODE_PUBLISHED,
+    ':type' => 'event',
+    ':now' => $now_format,
+  ))->fetchObject();
+  if ($result) {
+    $streaming_services = variable_get('rus_helper_streaming_services', array('ustream'));
+
+    foreach ($streaming_services as $service) {
+      if (empty($output) && ($embed_code = variable_get('rus_helper_embed_' . $service, ''))) {
+        $output = $embed_code;
+      }
+    }
+
+    if (!empty($output)) {
+      $elements['event']['#markup'] = $output;
+      return $elements;
+    }
+  }
+
+  $query = 'SELECT nid, vid FROM {node} WHERE type = :type AND status = :status ORDER BY sticky DESC, created DESC';
+  $result = db_query_range($query, 0, 1, array(
+    ':type' => 'video',
+    ':status' => NODE_PUBLISHED,
+  ))->fetchObject();
+  if ($result) {
+    $video = node_load($result->nid);
+    $output = node_view($video);
+    $elements['video'] = $output;
+  }
+
+  if (empty($output)) {
+    $elements['#markup'] = '<b>No Video Found</b>';
+  }
+
+  return $elements;
+}
+
+/**
+ * Pre-render function for the rus_video_description block.
+ */
+function _rus_helper_rus_video_description_pre_render($elements) {
+  $nid = $elements['#nid'];
+  $query = "SELECT body_value, body_format FROM {field_data_body} WHERE entity_type = 'node' AND entity_id = :nid AND deleted = 0 AND delta = 0 AND language = :language";
+  $node_data = db_query($query, array(
+    ':nid' => $nid,
+    ':language' => LANGUAGE_NONE,
+  ))->fetchObject();
+  if (!empty($node_data)) {
+    $elements['#body'] = check_markup($node_data->body_value, $node_data->body_format, LANGUAGE_NONE);
+  }
+  else {
+    $elements['#body'] = '';
+  }
+  return $elements;
+}
+
+function _rus_helper_rus_event_callout_pre_render($elements) {
+  $links = array();
+  $now = gmdate('Y-m-d H:i:s');
+
+  $query = new EntityFieldQuery();
+  $result = $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'event')
+    ->propertyCondition('status', 1)
+    ->fieldCondition('field_datetime', 'value', $now, '<')
+    ->fieldCondition('field_datetime', 'value2', $now, '>')
+    ->execute();     //
+  //watchdog('rus_helper', 'Querying against @date', array('@date' => $now), WATCHDOG_DEBUG);
+  //watchdog('rus_helper', '<pre>' . print_r($result, TRUE) . '</pre>', array(), WATCHDOG_DEBUG);
+  if (isset($result['node'])) {
+    $links = array();
+    $event_nids = array_keys($result['node']);
+    $title_results = db_query("SELECT title, nid FROM {node} WHERE nid IN (:nids)", array(":nids" => $event_nids));
+    foreach ($title_results as $title_data) {
+      $links[] = array(
+        '#theme' => 'link',
+        '#text' => $title_data->title,
+        '#path' => 'node/' . $title_data->nid,
+        '#options' => array(
+          'attributes' => array('class' => 'callout-event-link'),
+          'html' => FALSE,
+        ),
+      );
+    }
+    if (!empty($links)) {
+      //watchdog('rus_helper', '<pre>' . print_r($links, TRUE) . '</pre>', array(), WATCHDOG_DEBUG);
+      $elements['#links'] = $links;
+    }
+  }
+  return $elements;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function rus_helper_theme() {
+  return array(
+    'rus_social_form' => array(
+      'render element' => 'form',
+    ),
+    'rus_video_description' => array(
+      'variables' => array('body' => ''),
+    ),
+    'rus_event_callout' => array(
+      'variables' => array('links' => array()),
+      'template' => 'rus-helper-event-callout',
+    ),
+    'rus_helper_login_or_subscribe' => array(
+      'variables' => array('nid' => 0, 'type' => ''),
+      'template' => 'rus-helper-login-or-subscribe',
+    ),
+    
+    'rus_subscription_form' => array(
+      'render element' => 'form',
+      'template' => 'rus-subscription-form',
+      
+    ),
+  );
+}
+
+/**
+ * Themes the social settings form.
+ *
+ * @see rus_social_form.
+ */
+function theme_rus_social_form(&$variables) {
+  $form = $variables['form'];
+  $output = '';
+
+  $keys = array(
+    "Youtube",
+    "Google",
+    "Twitter",
+    "Facebook"
+  );
+
+  $weight_hash = array();
+  foreach(element_children($form['rus_social']) as $key) {
+    $weight = $form['rus_social'][$key]['weight']['#value'];
+    $weight_hash[$weight] = $key;
+  }
+  ksort($weight_hash);
+
+  $rows = array();
+  foreach($weight_hash as $weight => $key) {
+    $this_row = array();
+    $this_row[] = drupal_render($form['rus_social'][$key]['name']);
+    $this_row[] = drupal_render($form['rus_social'][$key]['url']);
+    $this_row[] = drupal_render($form['rus_social'][$key]['weight']);
+    $rows[] = array('data' => $this_row, 'class' => array('draggable'));
+  }
+
+  $header = array(
+    'Service',
+    'Url',
+    'Weight',
+  );
+
+  $table_id = 'rus-social-table';
+  drupal_add_tabledrag($table_id, 'order', 'sibling', 'rus-social-weight', NULL, NULL, TRUE);
+  $output .= theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => array('id' => $table_id)));
+  $output .= drupal_render_children($form);
+  return $output;
+}
+
+/**
+ * Theme function for the rus_video_description block.
+ */
+function theme_rus_video_description($variables) {
+  return '<div id="rus-video-description">' . $variables['body'] . '</div>';
+}
+
+/**
+ * Generates the social settings form.
+ *
+ * @see theme_rus_social_form.
+ */
+function rus_social_form($form, &$form_state) {
+  $form = array();
+  $form['rus_social'] = array();
+  $form['rus_social']['#tree'] = TRUE;
+
+  $social_vars_defaults = array(
+    'Youtube' => array(
+      'weight' => 0,
+      'url' => '',
+    ),
+    'Google' => array(
+      'weight' => 1,
+      'url' => '',
+    ),
+    'Twitter' => array(
+      'weight' => 2,
+      'url' => '',
+    ),
+    'Facebook' => array(
+      'weight' => 3,
+      'url' => '',
+    ),
+  );
+  //Get variables
+  $social_vars = variable_get('rus_social', $social_vars_defaults);
+
+  foreach($social_vars as $key => $values) {
+    $form['rus_social'][$key] = array(
+      'weight' => array(
+        '#type' => 'weight',
+        '#delta' => 10,
+        '#default_value' => (int) $values['weight'],
+        '#attributes' => array(
+          'class' => array('rus-social-weight'),
+        ),
+      ),
+      'name' => array(
+        '#markup' => $key,
+      ),
+      'url' => array(
+        '#type' => 'textfield',
+        '#default_value' => $values['url'],
+      )
+    );
+  }
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save Changes'),
+  );
+
+  return $form;
+}
+
+/**
+ * Submit handler for the social settings form.
+ *
+ * @see rus_social_form.
+ */
+function rus_social_form_submit($form, &$form_state) {
+  $values = array();
+
+  $keys = array(
+    "Youtube",
+    "Google",
+    "Twitter",
+    "Facebook"
+  );
+  foreach($keys as $key) {
+    $values[$key] = array(
+      'weight' => $form_state['values']['rus_social'][$key]['weight'],
+      'url' => $form_state['values']['rus_social'][$key]['url'],
+    );
+  }
+  variable_set('rus_social', $values);
+}
+
+/**
+ * Settings for streaming events.
+ *
+ * Currently we only do ustream events.
+ */
+function rus_streaming_form($form, &$form_state) {
+  $form = array();
+
+  $streaming_services = variable_get('rus_helper_streaming_services', array('ustream'));
+
+  foreach ($streaming_services as $service) {
+    $form['rus_helper_embed_' . $service] = array(
+      '#title' => t('Embed code for @service events', array('@service' => $service)),
+      '#default_value' => variable_get('rus_helper_embed_' . $service, ''),
+      '#type' => 'textarea',
+      '#description' => t('This embed code will be used on events on the front page. Be sure that this is exactly what you want, as no filtering will be done on this code.'),
+    );
+  }
+
+  return system_settings_form($form);
+}
+
+/**
+ * Implements hook_views_pre_render().
+ *
+ * This is where we change the 'Sport' display on the exposed form.
+ */
+function rus_helper_views_pre_render(&$view) {
+  if ($view->name == 'browse') {
+    if (variable_get('rus_helper_template', 'sport') != 'sport') {
+      $view->exposed_widgets = str_replace('Sport', variable_get('rus_helper_browse_event_label'), $view->exposed_widgets);
+    }
+  }
+}
+
+/**
+ * Implements hook_update_projects_alter().
+ *
+ * Was having trouble using availble updates - hiding custom modules helps.
+ */
+function rus_helper_update_projects_alter(&$projects) {
+  // Hide a site-specific module from the list.
+  unset($projects['rus_helper']);
+  unset($projects['rus_structure']);
+}
+
+/**
+ * Implements hook_permission().
+ */
+function rus_helper_permission() {
+  return array(
+    'edit_user_subscription_expiration_date' => array(
+      'title' => t("Edit Users' Expiration Dates"),
+      'description' => t("Allows user to update a user's expiration date. Admin only!"),
+    ),
+    'rus_helper_view_paid_videos' => array(
+      'title' => t("View Paid Videos"),
+      'description' => t("Allows user to view all videos on the site."),
+    ),
+	
+	'rus_helper_view_paid_news' => array(
+     'title' => t("View Paid News"),
+     'description' => t("Allows user to view all videos on the site."),
+   ),
+  		
+  		'rus_helper_view_paid_blog' => array(
+  				'title' => t("View Paid Blog"),
+  				'description' => t("Allows user to view all blog on the site."),
+  		),
+  );
+}
+
+/**
+ * Implements hook_field_access().
+ */
+function rus_helper_field_access($op, $field, $entity_type, $entity, $account) {
+  if ($op == 'edit' && $field['field_name'] == 'field_subscription_expire_date') {
+    return user_access('edit_user_subscription_expiration_date', $account);
+  }
+  return TRUE;
+}
+
+/**
+ * Implements hook_commerce_payment_order_paid_in_full().
+ */
+function rus_helper_commerce_payment_order_paid_in_full($order, $transaction) {
+  $total = 0;
+  foreach ($order->commerce_line_items[LANGUAGE_NONE] as $item) {
+    $line_item = commerce_line_item_load($item['line_item_id']);
+    $quantity = $line_item->quantity;
+    $duration = $line_item->field_subscription_duration[LANGUAGE_NONE][0]['value'];
+    if ($quantity * $duration) {
+      $total += $quantity * $duration;
+    }
+  }
+
+  $account = user_load($order->uid);
+  $default_timezone = variable_get('date_default_timezone', 'UTC');
+  $datenow = gmdate('Y-m-d H:i:s');
+  if (empty($account->field_subscription_expire_date)) {
+    //$start_date = format_date(strtotime('now'), 'custom', 'Y-m-d H:i:s', $default_timezone);
+    $start_date = $datenow;
+  }
+  else {
+    $start_date = $account->field_subscription_expire_date[LANGUAGE_NONE][0]['value'];
+
+    if ($start_date < $datenow) {
+      $start_date = $datenow;
+    }
+  }
+
+  $new_date_value = strtotime('+' . $total . ' days', strtotime($start_date . ' UTC'));
+  $new_date_value = format_date($new_date_value, 'custom', 'Y-m-d H:i:s', 'UTC');
+  $account->field_subscription_expire_date[LANGUAGE_NONE][0] = array(
+    'value' => $new_date_value,
+    'timezone' => 'UTC',
+    'timezone_db' => 'UTC',
+  );
+  
+  $rid = db_query("SELECT rid FROM {role} WHERE name = 'Subscriber'")->fetchColumn(0);
+  if (!isset($account->roles[$rid])) {
+    $account->roles[$rid] = 'Subscriber';
+  }
+  
+  user_save($account);
+  
+  $destination = drupal_get_destination();
+  
+  drupal_set_message('You have subscribed the video for 30 days');
+  drupal_goto($destination);
+  
+}
+
+/**
+ * Implements hook_cron().
+ */
+function rus_helper_cron() {
+  $rid = db_query("SELECT rid FROM {role} WHERE name = 'Subscriber'")->fetchColumn(0);
+  $datenow = gmdate('Y-m-d H:i:s');
+
+  // Query for all users who are subscribers and who have expired:
+  $users = db_query("SELECT ur.uid FROM {users_roles} ur
+                    INNER JOIN {field_data_field_subscription_expire_date} sed
+                      ON (sed.entity_type = 'user' AND sed.deleted = 0 AND sed.entity_id = ur.uid)
+                    WHERE ur.rid = :role AND STR_TO_DATE(sed.field_subscription_expire_date_value, '%Y-%m-%d %H:%i:%s') < STR_TO_DATE(:now, '%Y-%m-%d %H:%i:%s')",
+                    array(':role' => $rid, ':now' => $datenow));
+  $remove_count = 0;
+  foreach ($users as $user_data) {
+    $num_deleted = db_delete('users_roles')
+      ->condition('uid', $user_data->uid)
+      ->condition('rid', $rid)
+      ->execute();
+    $remove_count += $num_deleted;
+  }
+  watchdog('rus_helper', 'Unsubscribed @num users who had been expired.', array('@num' => $remove_count), WATCHDOG_NOTICE);
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function rus_helper_node_view($node, $view_mode, $langcode) {
+
+  if ($node->type == 'event' || $node->type == 'livestream' || $node->type =='video') {
+    if (!user_access('rus_helper_view_paid_videos')  && empty($node->field_is_free[LANGUAGE_NONE][0]['value'])) {
+  drupal_goto('subscribe', array('query'=>array('destination'=>'node/'.$node->nid)));   
+  	}
+  }
+  /** check if user has access to view news page or not **/
+if ($node->type == 'news') {
+	if (!user_access('rus_helper_view_paid_news') ) {
+  	  drupal_goto('subscribe', array('query'=>array('destination'=>'node/'.$node->nid)));   
+	}
+} 
+  
+  
+  
+  
+}
+
+/**
+ * This is the code from the field_vimeo_vimeo field moved into code to make it easier to debug and review.
+ */
+function rus_helper_field_vimeo_vimeo_helper($entity) {
+
+	$return_value = '';
+  if (user_access('rus_helper_view_paid_videos') || !empty($entity->field_is_free[LANGUAGE_NONE][0]['value'])) {
+    $wrapper = entity_metadata_wrapper('node', $entity, array('bundle' => 'video'));
+  
+    // Get the wrappers for each term reference field.
+    $wrapper_vimeo = $wrapper->field_vimeo;
+    $vimeo_id      = (int) $wrapper_vimeo->value();
+    $wrapper_youtube = $wrapper->field_youtube;
+    $youtube_id      =  $wrapper_youtube->value();
+    // Get the wrappers for each term reference field.
+    $wrapper_term_video_toggle = $wrapper->field_video_toggle;
+    // Convert any arrays into a single item wrappers.
+    $wrapper_term_video_toggle_item  = (get_class($wrapper_term_video_toggle)  == "EntityListWrapper") ? $wrapper_term_video_toggle->get(0)  : $wrapper_term_video_toggle;
+    // Extract the data if available.
+    $video_toggle = ($wrapper_term_video_toggle_item->value() == "") ? "" : $wrapper_term_video_toggle_item->name->value();
+    $view_live_event_html = views_embed_view('live_event_player', 'block_1');
+
+    $return_value .= ' <div class="video_content">';
+    if (preg_match('/iframe/', $view_live_event_html) && drupal_is_front_page()) {
+      $return_value .= $view_live_event_html;
+    }
+    elseif ($video_toggle == 'Youtube') {
+      $return_value .= '<iframe width="963" height="530" src="http://www.youtube.com/embed/' . $youtube_id . '?wmode=transparent" frameborder="0" allowfullscreen></iframe>';
+    }
+    else {
+      $return_value .= '<iframe id="vimeo-iframe" src="http://player.vimeo.com/video/' . $vimeo_id . '?title=0&amp;byline=0&amp;portrait=0" width="963" height="530" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>';
+    }
+
+    $block = module_invoke('sharethis', 'block_view', 'sharethis_block');
+	$return_value .= '<div class="video_info">
+        <span class="heading">' . $entity->workbench_moderation['current']->title. '</span>
+        <div class="clearfix"></div>	<div class="social_icon">
+		'.$block['content'].'</div>
+                <span class="black_row"></span>
+        
+        <p>' .$entity->body['und'][0]['value']. '</p>
+        </div>
+    		 
+     </div>';
+
+    
+    
+    /*if (!empty($entity->field_is_free[LANGUAGE_NONE][0]['value'])) {
+      $return_value .= '<p class="rus-helper-free-sample">' . variable_get('rus_helper_free_notice', t('This content is provided as a free sample.')) . '</p>';
+    }*/
+    
+  }
+  else {
+      drupal_goto('subscribe', array('query'=>array('destination'=>'node/'.$entity->nid)));   
+  	
+  }
+
+	
+
+  return $return_value;
+}

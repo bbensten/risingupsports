@@ -1,0 +1,6 @@
+name = Pure
+description = A base theme for use on Examiner.com sites.
+core = 7.x
+engine = phptemplate
+
+include directories[] = overrides

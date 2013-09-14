@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Rising Up Sports global feature.
+ */
+
+include_once 'rus_global.features.inc';

@@ -1,0 +1,12 @@
+name = RUS events
+description = Special functions for events for Rising Up Sports
+package = RUS
+core = 7.x
+version = "7.x-1.0"
+project = "rus_events"
+
+dependencies[] = rus_livestream
+dependencies[] = calendar
+dependencies[] = views
+
+files[] = rus_events.module

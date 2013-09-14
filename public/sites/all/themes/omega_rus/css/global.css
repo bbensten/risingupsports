@@ -1,0 +1,1250 @@
+/**
+ * @file
+ * This file will hold the main styles for your website.
+ */
+
+/**
+ * body
+ */
+body{
+  font-family: sans-serif;
+  font-size: 12px;
+}
+
+body.hide-title #page-title{
+  display: none;
+}
+
+#zone-menu-wrapper{
+  background-color: #f5f5f5;
+  -webkit-box-shadow: 0px 0px 5px #d1d1d1;
+  -moz-box-shadow: 0px 0px 5px #d1d1d1;
+  box-shadow: 0px 0px 5px #d1d1d1;
+  margin-top: 5px;
+}
+
+.feed-icon{
+  display: none;
+}
+
+/**
+ * Branding Zone
+ */
+#zone-branding-wrapper {
+  position: relative;
+}
+
+/* Branding zone: Search */
+#zone-branding-wrapper .block-block {
+  position: absolute;
+  top: 20px;
+  right: 320px;
+}
+
+#zone-branding-wrapper #block-search-form {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  z-index: 70;
+}
+
+#zone-branding-wrapper #block-search-form .form-type-searchfield {
+  position: absolute;
+  top: 0px;
+  right: 80px;
+}
+
+#zone-branding-wrapper #block-search-form .form-actions {
+  position: absolute;
+  top: 18px;
+  right: 256px;
+}
+
+#zone-branding-wrapper #block-search-form .form-search {
+  width: 220px;
+  background: none repeat scroll 0 0 #fff;
+  border-color: #ccc #ddd #ddd;
+  border-radius: 11px 11px 11px 11px;
+  border-right: 1px solid #ddd;
+  border-style: solid;
+  border-width: 1px;
+  color: #65645a;
+  font-weight: 300;
+  padding: 0px 10px 0px 40px;
+  font-size: 1.6em;
+  height: 2em;
+}
+
+/* Branding zone: Mega */
+#block-panels-mini-mega-table {
+  width: 740px;
+  display: inline-block;
+  z-index: 5;
+  position: absolute;
+  left: 190px;
+  top: 20px;
+}
+
+#mini-panel-mega_table > .center-wrapper{
+  display: none;
+  background: #fff;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  border: 1px solid #CCC;
+  padding: 5px 5px 5px 5px;
+  overflow: hidden;
+  width: 730px;
+}
+
+.block-mega-table .panel-3col-33-stacked .panel-col-first, 
+.block-mega-table .panel-3col-33-stacked .panel-col, 
+.block-mega-table .panel-3col-33-stacked .panel-col-last {
+  width: 100px;
+}
+
+.block-mega-table .views-row {
+  padding: 5px;
+  font-size: 1.3em;
+}
+
+.block-mega-table h2 {
+  font-size: 1.3em;
+  font-family: sans-serif;
+  margin-bottom: 5px;
+  color: #666
+}
+
+.block-mega-table a {
+  text-decoration: none;
+  color: #999
+}
+
+.block-mega-table a:hover {
+  text-decoration: underline;
+}
+
+#block-rus-helper-mega-browse-all {
+  display: inline-block;
+  left: 190px;
+  position: absolute;
+  top: 20px;
+  width: 730px;
+  z-index: 0;
+}
+
+.mega-browse-all-wrapper {
+  text-align: center;
+}
+
+.mega-browse-all-link {
+  padding-bottom: 3px;
+}
+
+.mega-browse-all-link a {
+  font-weight: bold;
+  text-decoration: none;
+  padding-right: 20px;
+  text-decoration: none;
+}
+
+.mega-browse-all-link a:hover {
+  text-decoration: underline;
+}
+
+.mega-browse-all-gender h2 {
+  margin-bottom: 5px;
+  font-size: 1.4em;
+  font-family: sans-serif;
+}
+
+.mega-browse-all-gender h2 a {
+  text-decoration: none;
+}
+
+.mega-browse-all-gender h2 a:hover {
+  text-decoration: underline;
+}
+
+.mega-browse-all-gender {
+  border-left:1px solid #eee;
+}
+
+.mega-browse-all-gender:first-child {
+  border-left: none;
+}
+
+.mega-browse-all-level {
+  width: 90px;
+  margin: 0px 10px;
+}
+
+.mega-browse-all-level h3 {
+  margin-bottom: 0px;
+  font-size: 15px;
+  font-family: sans-serif;
+}
+
+.mega-browse-all-level h3 a {
+  font-family: sans-serif;
+  margin-bottom: 5px;
+  color: #666;
+  text-decoration: none;
+}
+
+.mega-browse-all-level h3 a:hover {
+  text-decoration: underline;
+}
+
+.mega-browse-all-sport {
+  padding: 5px;
+  font-size: 13px;
+}
+
+.mega-browse-all-sport a {
+  text-decoration: none;
+  color: #999
+}
+
+.mega-browse-all-sport a:hover {
+  text-decoration: underline;
+}
+
+.mega-browse-all-content-wrapper{
+  display: none;
+  background: #fff;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  border:1px solid #CCC;
+  padding: 5px 5px 5px 5px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.mega-browse-all-wrapper-1 .mega-browse-all-content-wrapper {
+  width: 122px;
+} 
+
+.mega-browse-all-wrapper-2 .mega-browse-all-content-wrapper {
+  width: 232px;
+}
+
+.mega-browse-all-wrapper-3 .mega-browse-all-content-wrapper {
+  width: 332px;
+}
+
+.mega-browse-all-wrapper-4 .mega-browse-all-content-wrapper {
+  width: 452px;
+}
+
+.mega-browse-all-wrapper-5 .mega-browse-all-content-wrapper {
+  width: 562px;
+}
+
+.mega-browse-all-wrapper-6 .mega-browse-all-content-wrapper {
+  width: 672px;
+}
+
+.mega-browse-all-wrapper-7 .mega-browse-all-content-wrapper {
+  width: 782px;
+  margin-left: -80px;
+}
+
+.mega-browse-all-wrapper-8 .mega-browse-all-content-wrapper {
+  width: 892px;
+  margin-left: -160px;
+}
+
+.block-mega-table .panel-col-top {
+  text-align: center;
+  padding-bottom: 10px;
+}
+
+.pane-mega-table-mens > .pane-title,
+.pane-mega-table-womens > .pane-title {
+  text-align: center; 
+  margin-left: -20px;
+}
+
+.pane-mega-table-mens,
+.pane-mega-table-womens {
+  text-align: center;
+}
+
+#mini-panel-mega_table_mens {
+  border-right: 1px solid #ccc;
+}
+
+.block-mega-table .panel-col-top a {
+  font-weight: bold;
+  text-decoration: none;
+  background: url('../image/arrow-down.png') right center no-repeat;
+  padding-right: 20px;
+}
+
+.block-mega-table .panel-col-top a:hover {
+  text-decoration: underline;
+}
+
+/* Branding zone: Crew */
+#block-panels-mini-crew-dropdown {
+  position: absolute;
+  display: inline-block;
+  z-index: 80;
+  right: 0px;
+  top: 20px;
+}
+
+#block-panels-mini-crew-dropdown .pane-custom a {
+  font-weight: bold;
+  text-decoration: none;
+  background: url('../image/arrow-down.png') right center no-repeat;
+  padding-right: 20px;
+}
+
+.block-crew-dropdown .pane-views-panes {
+  clear: both;
+}
+
+.block-crew-dropdown .pane-custom {
+  text-align: right;
+  padding-bottom: 16px;
+}
+
+.block-crew-dropdown .pane-custom a:hover {
+  text-decoration: underline;
+}
+
+.block-crew-dropdown .views-row {
+  padding: 5px;
+  font-size: 1.3em
+}
+
+.block-crew-dropdown .pane-views-panes a {
+  text-decoration: none;
+  color: #999
+}
+
+.block-crew-dropdown .pane-views-panes a:hover {
+  text-decoration: underline;
+}
+
+.block-crew-dropdown .pane-views-panes {
+  display: none;
+  background: #fff;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  padding: 5px 5px 5px 5px;
+  width: 150px;
+  position: absolute;
+  right: 0px;
+}
+
+/* Postscript zone */
+.view-video-grid-full .views-field-field-image img {
+  -webkit-box-shadow: 1px 1px 5px #555;
+  -moz-box-shadow: 1px 1px 5px #555;
+  box-shadow: 1px 1px 5px #555;
+}
+
+.view-mode-teaser .field-item img {
+  -webkit-box-shadow: 1px 1px 5px #555;
+  -moz-box-shadow: 1px 1px 5px #555;
+  box-shadow: 1px 1px 5px #555;  
+}
+
+.view-video-grid-full .views-row {
+  padding-bottom: 10px;
+  height: 300px;
+}
+
+.view-video-grid-full .views-field-body {
+  border-top: solid 1px #ccc;
+  padding-top: 3px;
+  margin-top: 3px;
+}
+
+.view-video-grid-full .views-field-title a {
+  color: black;
+  text-decoration: none;
+}
+
+.view-video-grid-full .views-field-title {
+  padding-top: 8px;
+}
+
+/**
+ * Footer
+ */
+#section-footer {
+  margin-top: 30px;
+  padding-top: 30px;
+  background: url('../image/bg-footer.png');
+  color: #fff;
+  -webkit-box-shadow: 0px 0px 5px #d1d1d1;
+  -moz-box-shadow: 0px 0px 5px #d1d1d1;
+  box-shadow: 0px 0px 5px #d1d1d1;
+}
+
+#section-footer a {
+  color: #FFF;
+}
+
+#region-footer-second .block-menu-footer .block-title {
+  display: none;
+}
+
+#region-footer-second .block-menu-footer {
+  float: right;
+}
+
+#region-footer-second .block-menu-footer ul li.leaf {
+  list-style-image: none;
+  list-style-type: none;
+  display: inline-block;
+}
+
+#region-footer-second .block-menu-footer a {
+  text-decoration: none;
+  font-size: 1.1em;
+}
+
+#region-footer-second .block-menu-footer a:hover {
+  text-decoration: underline;
+}
+
+#region-footer-second .block-block {
+  width: 500px;
+}
+
+
+#section-footer table {
+  border: none;
+}
+
+#section-footer table td {
+  padding: 0px;
+}
+
+#section-footer table td .field-content {
+  margin-right: 20px;
+  margin-bottom: 20px;
+}
+
+#section-footer table tr:hover td,
+#section-footer table tr.even:hover td.active,
+#section-footer table tr.odd:hover td.active {
+  background: none;
+}
+
+/**
+ * All views
+ */
+.views-exposed-form .views-exposed-widget {
+  padding: 0px;
+}
+
+/**
+ * View video grids
+ */
+.views-grid-full-more {
+  padding: 8px 0px;
+  text-align: center;
+  position: relative;
+}
+
+.views-grid-full-more .views-grid-full-more-trigger a {
+  font-weight: bold;
+  text-decoration: none;
+  background: url('../image/arrow-down.png') right center no-repeat;
+  padding-right: 20px;
+}
+
+.views-grid-full-more .views-grid-full-more-trigger a:hover {
+  text-decoration: underline;
+}
+
+.views-grid-full-more .views-grid-full-more-menu {
+  display: none;
+  background: #fff;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  border: 1px solid #CCC;
+  padding: 5px 5px 5px 5px;
+}
+
+.views-grid-full-more .views-grid-full-more-menu {
+  width: 100px;
+  margin: 0 auto;
+  z-index: 5;
+  position: absolute;
+  left: 100px;
+}
+
+.views-grid-full-more .views-grid-full-more-menu li {
+  list-style-type: none;
+}
+
+.views-grid-full-more .views-grid-full-more-menu a {
+  padding: 5px;
+  font-size: 1.3em;
+}
+
+.views-grid-full-more .views-grid-full-more-menu a {
+  text-decoration: none;
+  color:#999
+}
+
+.views-grid-full-more .views-grid-full-more-menu a:hover{
+  text-decoration: underline;
+}
+
+.views-grid-full-footer {
+  text-align: center;
+  position: relative;
+}
+
+.views-grid-full-footer a {
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.views-grid-full-footer a:hover {
+  text-decoration: underline;
+}
+
+.view-video-grid-full .views-row {
+  position: relative;
+}
+
+.view-video-grid-full .view-video-grid-arrow-overlay{
+  position: absolute;
+  top: 68px;
+  left: 127px;
+}
+
+.float-right {
+  float: right;
+}
+
+.float-left {
+  float: left;
+}
+
+/**
+ * View scoreboard
+ */
+.view-scoreboard .views-exposed-widgets {
+  font-weight: bold;
+}
+
+.view-scoreboard .sponsored {
+  font-weight: bold;
+  padding: 3px 4px 1px 0;
+}
+
+.block-rus-helper-scoreboard {
+  height: 132px;
+}
+
+/**
+ * Panels
+ */
+.panel-3col-33-stacked .panel-col-first,
+.panel-3col-33-stacked .panel-col,
+.panel-3col-33-stacked .panel-col-last {
+  width: 300px;
+}
+
+.panel-3col-33-stacked .panel-col-first .inside,
+.panel-3col-33-stacked .panel-col .inside,
+.panel-3col-33-stacked .panel-col-last .inside {
+  margin: 0px;
+}
+
+.panel-3col-33-stacked .panel-col-first,
+.panel-3col-33-stacked .panel-col {
+  margin-right: 20px;
+}
+
+.omega-12-threecol-4-4-4 .grid-12 .inside {
+  margin-bottom:1em;
+}
+
+/**
+ * Views browse
+ */
+.view-id-browse input {
+  max-width: 108px;
+}
+
+.view-id-browse .views-exposed-widgets > div {
+  padding-right: 8px;
+}
+
+.omega-12-threecol-4-4-4 {
+  width: 960px;
+  margin-left: -10px;
+}
+
+.view-id-browse img {
+  -webkit-box-shadow: 1px 1px 3px #333;
+  -moz-box-shadow: 1px 1px 3px #333;
+  box-shadow: 1px 1px 3px #333;
+}
+
+/**
+ * Gray stripe
+ *
+ * @todo This needs a better implementation. The current version is not
+ *   flexible at all.
+ */
+body.node-type-video, 
+body.front {
+  background: url("../image/bg-video.png") repeat-x 0px 200px;
+}
+
+body.node-type-video.admin-menu {
+  background: url("../image/bg-video.png") repeat-x 0px 255px;
+}
+
+body.front.admin-menu {
+  background: url("../image/bg-video.png") repeat-x 0px 229px;
+}
+
+.field-name-video-stripe {
+  background-color: rgba(0, 0, 0, .7);
+  color: #fff;
+}
+
+.video-stripe-sport,
+.video-stripe-home,
+.video-stripe-V,
+.video-stripe-away {
+  font-size: 1.5em;
+}
+
+.video-stripe-sport {
+  padding-top: 40px;
+}
+
+.video-stripe-home {
+  padding-top: 0px;
+}
+
+.video-stripe-scores {
+  padding-top: 20px;
+}
+
+.video-stripe-buy {
+  padding-top: 20px;
+}
+
+.video-stripe-buy {
+  display: none;
+}
+
+.video-stripe-buy a {
+  width: 120px;
+  height: 30px;
+  padding-top: 7px;
+  color:#fff;
+  font-size: 1.2em;
+  text-align: center;
+  display: block;
+  margin: 0 auto;  
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  text-decoration: none;
+}
+
+.video-node-details-line {
+  font-size: 0.92em;
+  width: 280px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/**
+ * Ads
+ */
+.ad-wide {
+  margin-bottom: 20px;
+}
+
+/**
+ * Kaltura
+ */
+.KalturaDynamicPlayer {
+  z-index: 0;
+}
+
+.node-teaser h3 {
+  margin-bottom: 0px;
+}
+
+.browse-play-overlay{
+  position: relative;
+}
+
+.browse-play-overlay img {
+  position: absolute;
+  top: 12px;
+  left: 24px;
+}
+
+.view-browse td,
+.view-browse th {
+  height: 39px;
+}
+
+.view-live-event-banner {
+  text-align: center;
+}
+
+.dfp-tag-wrapper {
+  text-align: center;
+  margin: 0 auto;
+  padding-top: 10px;
+}
+
+.block-rus-helper-rus-social-icons-header {
+  position: absolute;
+  left: 360px;
+  top: 20px;
+  z-index: 100;
+}
+
+/*
+For some stupid reason, the jcarousel is not always injecting the skin when there is a null result. To combat this, I'm temporarily adding this to the main theme to just get'er done.
+Technicaly this belows on rus_helper but I was supposed to be off this project a few months ago :)  -Rick
+-------------------------------------------------------------------
+------------------------------------------------------------------
+------------------------------------------------------------------
+*/
+
+/**
+ * A simple skin for RUS Scoreboard
+ */
+
+.jcarousel-skin-rus-scoreboard .jcarousel-container-horizontal {
+  padding: 0px 0px;
+  margin-left: -2px
+}
+
+.jcarousel-skin-rus-scoreboard .jcarousel-clip-horizontal {
+  width: 942px;
+  overflow: hidden;
+}
+
+.jcarousel-skin-rus-scoreboard .jcarousel-item {
+  width: 100px;
+  overflow: hidden;
+  list-style: none;
+  background: #fff none;
+}
+
+.jcarousel-skin-rus-scoreboard .jcarousel-item-horizontal {
+  margin: 2px 4px;
+}
+
+.jcarousel-skin-rus-scoreboard .jcarousel-item-placeholder {
+  background: #fff url(throbber.gif) no-repeat center center;
+  color: #000;
+}
+
+/**
+ * Buttons
+ */
+.jcarousel-skin-rus-scoreboard .jcarousel-next,
+.jcarousel-skin-rus-scoreboard .jcarousel-prev {
+  background: none;
+  border: 9px solid transparent;
+  display: block;
+  width: 0;
+  height: 0;
+}
+
+.jcarousel-skin-rus-scoreboard .jcarousel-prev {
+  border-right-color: #414141;
+} 
+
+.jcarousel-skin-rus-scoreboard .jcarousel-next {
+  border-left-color: #414141;
+}
+
+.jcarousel-skin-rus-scoreboard .jcarousel-next-disabled,
+.jcarousel-skin-rus-scoreboard .jcarousel-prev-disabled {
+  display: none;
+}
+
+/**
+ * Horizontal buttons
+ */
+.jcarousel-skin-rus-scoreboard .jcarousel-prev-horizontal {
+  position: absolute;
+  top: 17px;
+  left: -30px;
+}
+
+.jcarousel-skin-rus-scoreboard .jcarousel-next-horizontal {
+  position: absolute;
+  top: 17px;
+  right: -30px;
+}
+
+.jcarousel-skin-rus-scoreboard .jcarousel-list-horizontal{
+  height:90px; 
+  overflow:hidden;
+}
+
+/**
+ * Exposed filter manipulations
+ */
+.view-scoreboard {
+  margin-top: 7px;
+  margin-bottom: 10px;
+}
+
+/**
+ * Grid view
+ */
+.view-scoreboard .bef-select-as-links {
+  padding-left: 6px;
+}
+
+.view-scoreboard .views-field-field-datetime {
+  background-color: #edebec;
+}
+
+.view-scoreboard .views-field-type {
+  float: right;
+}
+
+.view-scoreboard .views-field {
+  padding: 1px 3px;
+}
+
+.view-scoreboard .views-field .field-content img {
+  vertical-align: middle;
+}
+
+.view-scoreboard .views-field a {
+  color: #000;
+  text-decoration: none;
+}
+
+.view-scoreboard .views-field a:hover {
+  text-decoration: underline;
+}
+
+.view-scoreboard .views-field-field-datetime a {
+  color:#666;
+}
+
+.view-scoreboard .views-field-field-term-gender {
+  background-color: #edebec;
+}
+
+.view-scoreboard .views-field-field-term-sport {
+  background-color: #edebec;
+  font-size: .85em;
+}
+
+.view-scoreboard .views-field-field-term-level {
+  float: right;
+}
+
+.view-scoreboard .views-field-field-image {
+  margin: 3px 10px 2px 10px;
+}
+
+.view-scoreboard td {
+  padding: 0px;
+}
+
+.view-scoreboard table {
+  border: none;
+}
+
+.view-scoreboard .jcarousel-item {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  -webkit-box-shadow: 0px 0px 3px #666;
+  -moz-box-shadow: 0px 0px 3px #666;
+  box-shadow: 0px 0px 3px #666;
+}
+
+/**
+ * A simple skin for RUS Scoreboard Filter
+ */
+
+.jcarousel-skin-rus-scoreboard-filter {
+  margin-top: 8px;
+  background-color: #b8b8b8;
+}
+
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-container-horizontal {
+  padding: 0px 0px;
+  margin-left: -2px;
+  width: 600px;
+}
+
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-clip-horizontal {
+  width: 600px;
+  overflow: hidden;
+}
+
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-item {
+  overflow: hidden;
+  list-style: none;
+  font-weight: bold;
+  padding: 2px 5px 0 10px;
+}
+
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-item a {
+  color: #000;
+  text-decoration: none;
+}
+
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-item a.scoreboard-active-trail {
+  color: #df2003;
+  text-decoration: none;
+}
+
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-item-horizontal {
+  margin: 2px 4px;
+}
+
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-item-placeholder {
+  background: #fff url(throbber.gif) no-repeat center center;
+  color: #000;
+}
+
+/**
+ * Buttons
+ */
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-next,
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-prev {
+  display: block;
+  width: 18px;
+  height: 22px;
+  background-image: url(arrows3.png);
+}
+
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-prev {
+  background-position: -18px 3px !important;
+} /*ARROWS*/
+
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-next {
+  background-position: -12px -21px !important;
+}
+
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-next-disabled,
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-prev-disabled {
+  display: none;
+}
+
+/**
+ * Horizontal Buttons
+ */
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-prev-horizontal {
+  position: absolute;
+  top: 0px; /*POSITION*/
+  left: -17px;
+  background-position: 0 0;
+}
+
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-prev-horizontal:hover {
+  background-position: -32px 0;
+}
+
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-prev-horizontal:active {
+  background-position: -64px 0;
+}
+
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-next-horizontal {
+  position: absolute;
+  top: 0px; /*POSITION*/
+  right: -30px;
+  background-position: 0 -32px;
+}
+
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-next-horizontal:hover {
+  background-position: -32px -32px;
+}
+
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-next-horizontal:active {
+  background-position: -64px -32px;
+}
+
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-list-horizontal {
+  height: 25px;
+  overflow: hidden;
+}
+
+.scoreboard_filter a {
+  width: 100px;
+  display: inline-block;
+}
+
+/**
+ * Primary video.
+ */
+.pane-node-content,
+.pane-rus-helper-rus-front-page {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  float: left;
+  height: 410px;
+  margin-right: -300px;
+  padding: 15px 320px 15px 0;
+  width: 100%;
+}
+
+.video-wrapper {
+  height: 0;
+  overflow: hidden;
+  padding-bottom: 56.25%;
+  position: relative;
+}
+
+.video-wrapper iframe,
+.video-wrapper embed,
+.video-wrapper object {
+  left: 0;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+
+.pane-rus-helper-rus-video-description {
+  color: #fff;
+  float: left;
+  height: 110px;
+  overflow-y: scroll;
+  margin: 15px 0;
+  width: 300px;
+}
+
+/**
+ * Broadcast Schedule
+ */
+.pane-broadcast-schedule {
+  float: left;
+  margin: 15px 0;
+  position: relative;
+  width: 300px;
+}
+
+.pane-broadcast-schedule .pane-title,
+.view-broadcast-schedule .view-archive-link {
+  color: #fff;
+  font-family: sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+.view-broadcast-schedule .view-header {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.view-broadcast-schedule .view-archive-link {
+  text-decoration: none;
+}
+
+.view-broadcast-schedule .view-archive-link:hover {
+  text-decoration: underline;
+}
+
+.view-broadcast-schedule .jcarousel-container-horizontal {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  height: auto;
+  padding: 0;
+  width: 100%;
+}
+
+.view-broadcast-schedule .jcarousel-clip-horizontal {
+  width: 300px;
+}
+
+.view-broadcast-schedule .jcarousel-item-horizontal {
+  background: #ffffff; /* Old browsers */
+  background: -moz-linear-gradient(top, #ffffff 0%, #cecece 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#cecece)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #ffffff 0%,#cecece 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, #ffffff 0%,#cecece 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top, #ffffff 0%,#cecece 100%); /* IE10+ */
+  background: linear-gradient(to bottom, #ffffff 0%,#cecece 100%); /* W3C */
+  border: 1px solid #cecece;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  height: 7em;
+  margin: 0 3px 0 0;
+  padding: .5em;
+  text-align: left;
+  width: 98px;
+}
+
+.view-broadcast-schedule .views-field-field-datetime,
+.view-broadcast-schedule .views-field-field-term-sport,
+.view-broadcast-schedule .views-field-field-abbreviation-1 {
+  line-height: 1.3em;
+  margin-bottom: .6em;
+}
+
+.view-broadcast-schedule .views-field-field-datetime {
+  font-size: .75em;
+}
+
+.view-broadcast-schedule .views-field-field-datetime,
+.view-broadcast-schedule .views-field-field-abbreviation-1 {
+  font-weight: bold;
+}
+
+.view-broadcast-schedule .views-field-field-term-sport,
+.view-broadcast-schedule .views-field-field-abbreviation-1 {
+  font-size: .8em;
+}
+
+.view-broadcast-schedule .jcarousel-prev-horizontal,
+.view-broadcast-schedule .jcarousel-next-horizontal {
+  background: none;
+  border: 6px solid transparent;
+  height: 0;
+  top: 34px;
+  width: 0;
+}
+
+.view-broadcast-schedule .jcarousel-prev-horizontal {
+  border-right-color: #d2d2d2;
+  left: -15px;
+}
+
+.view-broadcast-schedule .jcarousel-next-horizontal {
+  border-left-color: #d2d2d2;
+  right: -15px;
+}
+
+/**
+ * OpenX
+ */
+
+/* 300x250 */
+.pane-rus-helper-rus-openx-front-page-300x250,
+.pane-rus-helper-rus-openx-video-300x250 {
+  float: left;
+  height: 250px;
+  width: 300px;
+}
+
+/* 728x90 */
+#block-rus-helper-rus-openx-filter-728x90, 
+.pane-rus-helper-rus-openx-front-page-728x90,
+.pane-rus-helper-rus-openx-video-728x90 {
+  display: inline-block;
+  height: 90px;
+  margin: 1em 0;
+  vertical-align: middle;
+  width: 728px;
+}
+
+/* 200x90 */
+#block-rus-helper-rus-openx-all-200x90,
+#block-rus-helper-rus-openx-filter-200x90, 
+.pane-rus-helper-rus-openx-all-200x90 {
+  display: inline-block;
+  height: 90px;
+  margin: 1em 0 1em 8px;
+  vertical-align: middle;
+  width: 200px;
+}
+
+#block-rus-helper-rus-event-callout .block-title {
+  display: none;
+}
+
+#block-rus-helper-rus-event-callout .rus-event-callout-links {
+  width: 90%;
+  float: left;
+}
+
+#block-rus-helper-rus-event-callout .rus-event-callout-close {
+  float: right;
+  padding: 5px;
+}
+
+a.button {
+  -webkit-appearance: none;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+  -webkit-background-clip: padding;
+  -moz-background-clip: padding;
+  background-clip: padding-box;
+  background: #dddddd url('../images/button.png?1360869760') repeat-x;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ffffff), color-stop(100%, #dddddd));
+  background-image: -webkit-linear-gradient(#ffffff, #dddddd);
+  background-image: -moz-linear-gradient(#ffffff, #dddddd);
+  background-image: -o-linear-gradient(#ffffff, #dddddd);
+  background-image: linear-gradient(#ffffff, #dddddd);
+  border: 1px solid;
+  border-color: #dddddd #bbbbbb #999999;
+  cursor: pointer;
+  color: #333333;
+  display: inline-block;
+  font: bold 12px / 1.3 "Helvetica Neue", Arial, "Liberation Sans", FreeSans, sans-serif;
+  outline: 0;
+  overflow: visible;
+  margin: 0;
+  padding: 3px 10px;
+  text-shadow: white 0 1px 1px;
+  text-decoration: none;
+  vertical-align: top;
+  width: auto;
+  *padding-top: 2px;
+  *padding-bottom: 0;
+}
+
+a.button:hover {
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ffffff), color-stop(1px, #eeeeee), color-stop(100%, #cccccc));
+  background-image: -webkit-linear-gradient(#ffffff, #eeeeee 1px, #cccccc);
+  background-image: -moz-linear-gradient(#ffffff, #eeeeee 1px, #cccccc);
+  background-image: -o-linear-gradient(#ffffff, #eeeeee 1px, #cccccc);
+  background-image: linear-gradient(#ffffff, #eeeeee 1px, #cccccc);
+  text-decoration: none;
+}
+
+/* Terms of Service CSS */
+fieldset.terms-of-service span.fieldset-legend {
+  font-weight: bold;
+  font-size: 1.5em;
+}
+
+fieldset.terms-of-service .commerce-extra-panes-checkout-form,
+.commerce-extra-panes-review .node-article .content {
+  height: 200px;
+  overflow: scroll;
+}
+
+fieldset.terms-of-service .commerce-extra-panes-checkout-form footer.submitted,
+.commerce-extra-panes-review .node-article footer.submitted {
+  display: none;
+}

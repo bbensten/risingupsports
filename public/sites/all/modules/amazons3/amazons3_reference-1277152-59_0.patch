@@ -1,0 +1,261 @@
+diff --git a/AmazonS3StreamWrapper.inc b/AmazonS3StreamWrapper.inc
+index 908561c..a67dc99 100644
+--- a/AmazonS3StreamWrapper.inc
++++ b/AmazonS3StreamWrapper.inc
+@@ -925,7 +925,7 @@ class AmazonS3StreamWrapper implements DrupalStreamWrapperInterface {
+    *
+    * @see http://docs.amazonwebservices.com/AWSSDKforPHP/latest/#i=AmazonS3
+    */
+-  protected function getS3() {
++  public function getS3() {
+     if($this->s3 == null) {
+       $bucket = variable_get('amazons3_bucket', '');
+ 
+@@ -1040,7 +1040,7 @@ class AmazonS3StreamWrapper implements DrupalStreamWrapperInterface {
+    *  @return
+    *    An array if the $uri exists, otherwise FALSE.
+    */
+-  protected function _amazons3_get_object($uri, $cache = TRUE) {
++  public function _amazons3_get_object($uri, $cache = TRUE) {
+     if ($uri == 's3://' || $uri == 's3:') {
+       $metadata = $this->_amazons3_format_response('/', array(), TRUE);
+       return $metadata;
+diff --git a/amazons3.info b/amazons3.info
+diff --git a/amazons3.module b/amazons3.module
+index bfea030..db4cd36 100644
+--- a/amazons3.module
++++ b/amazons3.module
+@@ -5,6 +5,8 @@
+  * Provides S3 stream wrapper
+  */
+ 
++module_load_include('inc', 'amazons3', 'amazons3_reference');
++
+ /**
+  * Implements hook_stream_wrappers().
+  *
+@@ -34,6 +36,15 @@ function amazons3_menu() {
+     'access arguments' => array('administer amazons3'),
+   );
+ 
++  $items['amazons3/reference/%/%/%'] = array(
++    'page callback' => 'amazons3_referenced_autocomplete',
++    'page arguments' => array(2, 3, 4),
++    'access callback' => '_filefield_sources_field_access',
++    'access arguments' => array(2, 3, 4),
++    'file' => 'amazons3_reference.inc',
++    'type' => MENU_CALLBACK,
++  );
++
+   return $items;
+ }
+ 
+@@ -70,10 +81,10 @@ function amazons3_admin() {
+   $form = array();
+ 
+   $form['amazons3_bucket'] = array(
+-      '#type'           => 'textfield',
+-      '#title'          => t('Default Bucket Name'),
+-      '#default_value'  => variable_get('amazons3_bucket', ''),
+-      '#required'       => TRUE,
++    '#type'           => 'textfield',
++    '#title'          => t('Default Bucket Name'),
++    '#default_value'  => variable_get('amazons3_bucket', ''),
++    '#required'       => TRUE,
+   );
+ 
+   $form['amazons3_cache'] = array(
+@@ -91,15 +102,15 @@ function amazons3_admin() {
+   );
+ 
+   $form['amazons3_domain'] = array(
+-      '#type'           => 'textfield',
+-      '#title'          => t('CDN Domain Name'),
+-      '#description'    => t('If serving files from CloudFront then the bucket name can differ from the domain name.'),
+-      '#default_value'  => variable_get('amazons3_domain', ''),
+-      '#states'         => array(
+-        'visible' => array(
+-          ':input[id=edit-amazons3-cname]' => array('checked' => TRUE),
+-        )
+-      ),
++    '#type'           => 'textfield',
++    '#title'          => t('CDN Domain Name'),
++    '#description'    => t('If serving files from CloudFront then the bucket name can differ from the domain name.'),
++    '#default_value'  => variable_get('amazons3_domain', ''),
++    '#states'         => array(
++      'visible' => array(
++        ':input[id=edit-amazons3-cname]' => array('checked' => TRUE),
++      )
++    ),
+   );
+ 
+   $form['amazons3_torrents'] = array(
+@@ -137,6 +148,12 @@ function amazons3_admin() {
+     '#submit' => array('amazons3_clear_cache_submit'),
+   );
+ 
++  $form['amazons3_clear_cache']['rebuild'] = array(
++    '#type' => 'submit',
++    '#value' => t('Rebuild file metadata cache'),
++    '#submit' => array('amazons3_batch_rebuild_cache'),
++  );
++
+   return system_settings_form($form);
+ }
+ 
+@@ -166,12 +183,12 @@ function amazons3_admin_validate($form, &$form_state) {
+         form_set_error('amazons3_bucket', t('There was a problem with the SSL certificate. Try setting AWS_CERTIFICATE_AUTHORITY to true in "libraries/awssdk/config.inc.php". You may also have a curl library (e.g. the default shipped with MAMP) that does not contain trust certificates for the major authorities.'));
+       }
+       else {
+-        form_set_error('amazons3_bucket', t('There was a problem connecting to S3'));
++        form_set_error('amazons3_bucket', t('There was a problem connecting to S3: '.$e));
+       }
+ 
+     }
+     catch(Exception $e) {
+-      form_set_error('amazons3_bucket', t('There was a problem using S3'));
++      form_set_error('amazons3_bucket', t('There was a problem using S3: '.$e));
+     }
+   }
+ }
+@@ -194,3 +211,140 @@ function amazons3_clear_cache_submit($form, &$form_state) {
+   drupal_set_message(t('Cache cleared.'));
+ }
+ 
++/**
++ * Submit handler to rebuild the cache via the Batch API.
++ */
++function amazons3_batch_rebuild_cache($options1, $options2) {
++
++  //@ todo: Do not truncate the table, if we can find a way to get just the newly-added files.
++  db_query('TRUNCATE TABLE {amazons3_file}');
++
++  $batch = array(
++    'operations' => array(
++      array('amazons3_rebuild_process', array($options1, $options2)),
++    ),
++    'finished' => 'amazons3_rebuild_process_finished',
++    'title' => t('Processing Amazon S3 Cache Rebuild'),
++    'init_message' => t('Starting. Connecting to S3 and fetching objects. Please wait...'),
++    'progress_message' => t('Rebuilding the cache... @current of @total'),
++    'error_message' => t('Amazon S3 Cache Rebuild has encountered an error.'),
++  );
++  batch_set($batch);
++
++}
++
++/**
++ * Batch Operation Callback
++ */
++function amazons3_rebuild_process($options1, $options2, &$context) {
++
++  $bucket = variable_get('amazons3_bucket', '');
++
++  if(!libraries_load('awssdk')) {
++    drupal_set_message(t('Unable to load the AWS SDK. Please check you have installed the library correctly and configured your S3 credentials.'), 'error');
++  }
++  else if(!class_exists('AmazonS3')) {
++    drupal_set_message(t('Cannot load AmazonS3 class. Please check the awssdk is installed correctly'), 'error');
++  }
++  else {
++    try {
++      $s3 = new AmazonS3();
++
++      $user_id = $s3->get_canonical_user_id();
++      if(!$user_id['id']) {
++        drupal_set_message('The S3 access credentials are invalid', 'error');
++      }
++      else if(!$s3->if_bucket_exists($bucket)) {
++        drupal_set_message('The bucket does not exist', 'error');
++      }
++
++      $bucket = variable_get('amazons3_bucket', '');
++
++      $limit = 100; // @todo: Make this configurable.
++
++      // Total number of objects in the bucket.
++      $total = count($s3->get_object_list($bucket));
++
++
++      // Create a new AmazonS3StreamWrapper so we can use some of its functions. (They have been made public.)
++      // @todo: Use reflection to extend the protected functions in the public class, unless this is good enough.
++      $wrapper = new AmazonS3StreamWrapper();
++
++      if (!isset($context['sandbox']['progress'])) {
++
++        $objects = $s3->get_object_list($bucket, array('max-keys' => $limit));
++
++        $context['sandbox']['last_key'] = $objects[$limit-1];
++        $context['sandbox']['progress'] = 0;
++        $context['sandbox']['current_node'] = 0;
++      }
++      else {
++        /// If we 've already started processing, remember the last URI so we can paginate from there later.
++        $objects = $s3->get_object_list($bucket,
++          array('max-keys' => $limit, 'marker' => $context['sandbox']['last_key']));
++
++        // Reset the last_key for this new batch.
++        $context['sandbox']['last_key'] = $objects[$limit-1];
++      }
++
++      $context['sandbox']['max'] = $total;
++
++      // Grab each individual object's metadata and inset it into the database.
++      foreach($objects as $object) {
++        //$metadata = $wrapper->_amazons3_get_object($object);
++
++        // Fudge the metadata for now. @todo: Uncomment above call for $metadata, but try to make it faster.
++        $metadata['filesize'] = 0;
++        $metadata['timestamp'] = time();
++        $metadata['dir'] = 0;
++        $metadata['mode'] = 33279;
++        $metadata['uid'] = 0;
++        $metadata['uri'] = $object;
++
++        if ($metadata['uri'] != ' ') {
++          $context['sandbox']['progress']++;
++          $context['results'][] += $object;
++          $context['sandbox']['current_node'] = $metadata['uri'];
++          $context['message'] = t('Now processing %current of %total',
++            array('%current' => $context['sandbox']['progress'], '%total' => $total));
++
++          db_merge('amazons3_file')
++            ->key(array('uri' => $metadata['uri']))
++            ->fields($metadata)
++            ->execute();
++
++          if ($context['sandbox']['progress'] != $context['sandbox']['max']) {
++            $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['max'];
++          }
++        }
++      }
++    }
++    catch(RequestCore_Exception $e){
++      if(strstr($e->getMessage(), 'SSL certificate problem')) {
++        drupal_set_message('There was a problem with the SSL certificate. Try setting AWS_CERTIFICATE_AUTHORITY to true in "libraries/awssdk/config.inc.php".
++        You may also have a curl library (e.g. the default shipped with MAMP) that does not contain trust certificates for the major authorities.', 'error');
++      }
++      else {
++        drupal_set_message('There was a problem connecting to S3: '.$e, 'error');
++      }
++
++    }
++    catch(Exception $e) {
++      drupal_set_message('There was a problem using S3: '.$e, 'error');
++    }
++  }
++}
++
++/**
++ * Batch 'finished' callback
++ */
++function amazons3_rebuild_process_finished($success, $results, $operations) {
++  if ($success) {
++    $message = t('Cache successfully rebuilt. !count files were added.', array('!count' => count($results)));
++  }
++  else {
++    $error_operation = reset($operations);
++    $message = t('An error occurred while processing %error_operation with arguments: @arguments', array('%error_operation' => $error_operation[0], '@arguments' => print_r($error_operation[1], TRUE)));
++  }
++  drupal_set_message($message);
++}

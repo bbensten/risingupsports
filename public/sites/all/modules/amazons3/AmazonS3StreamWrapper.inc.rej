@@ -1,0 +1,17 @@
+***************
+*** 1018,1024 ****
+     *  @return
+     *    An array if the $uri exists, otherwise FALSE.
+     */
+-   protected function _amazons3_get_object($uri, $cache = TRUE) {
+      if ($uri == 's3://' || $uri == 's3:') {
+        $metadata = $this->_amazons3_format_response('/', array(), TRUE);
+        return $metadata;
+--- 1018,1024 ----
+     *  @return
+     *    An array if the $uri exists, otherwise FALSE.
+     */
++   public function _amazons3_get_object($uri, $cache = TRUE) {
+      if ($uri == 's3://' || $uri == 's3:') {
+        $metadata = $this->_amazons3_format_response('/', array(), TRUE);
+        return $metadata;

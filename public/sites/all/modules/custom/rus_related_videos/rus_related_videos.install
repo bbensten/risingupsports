@@ -1,0 +1,10 @@
+<?php
+/**
+ * @file rus_related_videosinstall
+ * Contains install and update functions for related videos on Rising Up Sports.
+ */
+
+function rus_related_videos_install() {
+  // Requires that content count statistics are enabled
+  variable_set('statistics_count_content_views', 1);
+}

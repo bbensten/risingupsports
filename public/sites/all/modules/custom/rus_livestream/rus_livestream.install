@@ -1,0 +1,46 @@
+<?php
+/**
+ * @file rus_livestream.install
+ * Contains install and update functions for RUS livestream.
+ */
+
+function rus_livestream_install() {
+  // Set up the livestream content type.
+  if (!in_array('livestream', node_type_get_names())) {
+    $content_type = array(
+      'type' => 'livestream',
+      'name' => t('Livestream'),
+      'base' => 'node_content',
+      'description' => 'Livestream channel',
+      'custom' => 1,
+      'modified' => 1,
+      'locked' => 0,
+    );
+
+    $content_type = node_type_set_defaults($content_type);
+    node_type_save($content_type);
+    node_add_body_field($content_type, t('Embed code'));
+  }
+
+  // Grant all permissions to the livestream type to Administrator role.
+  $roles = array_flip(user_roles());
+  if (!empty($roles['administrator'])) {
+    $rid = $roles['administrator'];
+    $permissions = array(
+      'create livestream content',
+      'edit own livestream content',
+      'edit any livestream content',
+      'delete own livestream content',
+      'delete any livestream content',
+    );
+    user_role_grant_permissions($rid, $permissions);
+  }
+}
+
+/**
+ * Update hook to set up initial livestream nodes.
+ */
+function rus_livestream_update_7001() {
+  module_load_include('inc', 'rus_livestream', 'rus_livestream.defaults');
+  rus_livestream_default_stream_nodes();
+}

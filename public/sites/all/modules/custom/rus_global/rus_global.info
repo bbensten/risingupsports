@@ -1,0 +1,10 @@
+name = Rising Up Sports global
+description = Global block placements and views.
+core = 7.x
+package = Rising Up Sports
+dependencies[] = context
+dependencies[] = ctools
+dependencies[] = rus_helper
+features[context][] = rus_global
+features[ctools][] = context:context:3
+features[features_api][] = api:1

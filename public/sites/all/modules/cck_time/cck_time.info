@@ -1,0 +1,12 @@
+name = CCK Time
+description = Defines a time field type.
+dependencies[] = field
+package = CCK
+core = 7.x
+
+; Information added by drupal.org packaging script on 2011-12-19
+version = "7.x-1.0-beta2"
+core = "7.x"
+project = "cck_time"
+datestamp = "1324304738"
+

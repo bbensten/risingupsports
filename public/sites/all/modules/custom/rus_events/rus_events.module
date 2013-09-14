@@ -1,0 +1,64 @@
+<?php
+/**
+ * @file Special events handling for Rising up sports.
+ */
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function rus_events_form_event_node_form_alter(&$form, &$form_state, $form_id) {
+  $form['#validate'][] = 'rus_events_form_validate';
+  // Trick the date form into always showing an end date.
+  $form['field_datetime'][LANGUAGE_NONE][0]['show_todate'] = 1;
+  if (empty($form['field_datetime'][LANGUAGE_NONE][0]['#default_value']['value2'])) {
+    $form['field_datetime'][LANGUAGE_NONE][0]['#default_value']['value2'] = $form['field_datetime'][LANGUAGE_NONE][0]['#default_value']['value'];
+  }
+}
+
+/**
+ * Validation for overlapping dates on events per channel.
+ */
+function rus_events_form_validate($form, &$form_state) {
+  if (!empty($form_state['values']['field_livestream_reference'][LANGUAGE_NONE][0]['nid'])) {
+    // Fudge the start date slightly so that consecutive events can be set to
+    // end and start at the same time.
+    $start = date('Y-m-d H:i:s', strtotime($form_state['values']['field_datetime'][LANGUAGE_NONE][0]['value']) + 1);
+    $end = $form_state['values']['field_datetime'][LANGUAGE_NONE][0]['value2'];
+    $livestream_nid = $form_state['values']['field_livestream_reference'][LANGUAGE_NONE][0]['nid'];
+
+    // Find any events scheduled in the selected timeframe.
+    $date_query = 'SELECT entity_id FROM {field_data_field_datetime} WHERE 
+      (field_datetime_value BETWEEN :start AND :end) OR 
+      (field_datetime_value2 BETWEEN :start AND :end) OR
+      (:start BETWEEN field_datetime_value AND field_datetime_value2)';
+
+    $replace = array(
+      ':start' => $start,
+      ':end' => $end,
+    );
+
+    // If we have items in range, check the nodereferenced livestream id.
+    $result = db_query($date_query, $replace);
+    if ($result) {
+      while ($row = $result->fetchAssoc()) {
+        $reference_query = 'SELECT n.nid, n.title from {field_data_field_livestream_reference} lr 
+          LEFT JOIN {node} n ON n.nid = lr.entity_id
+          WHERE lr.field_livestream_reference_nid = :livestream_id';
+
+        $reference_result = db_query($reference_query, array(':livestream_id' => $livestream_nid));
+        if ($conflicts = $reference_result->fetchAll()) {
+          $overlap = FALSE;
+          foreach($conflicts as $conflict) {
+            if (empty($form_state['values']['nid']) || (!empty($form_state['values']['nid']) && ($conflict->nid != $form_state['values']['nid']))) {
+              $overlap = TRUE;
+              $conflicted_title = $conflict->title;
+            }
+          }
+          if ($overlap === TRUE) {
+           // form_set_error('field_datetime', t('This event overlaps an existing event on the same channel: !title', array('!title' => $conflicted_title)));
+          }
+        }
+      }
+    }
+  }
+}

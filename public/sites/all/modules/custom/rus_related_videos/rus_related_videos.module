@@ -1,0 +1,89 @@
+<?php
+/**
+ * @file rus_related_videos.module
+ * Contains custom functions for Related Videos on Rising Up Sports.
+ */
+
+/**
+ * Implements hook_block_info().
+ */
+function rus_related_videos_block_info() {
+  $blocks['related_videos'] = array(
+    'info' => t('Related videos'),
+    'cache' => DRUPAL_CACHE_PER_PAGE,
+    'region' => 'content',
+    'visibility' => BLOCK_VISIBILITY_LISTED,
+    'pages' => 'node/%',
+    'status' => 1,
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function rus_related_videos_block_view($delta = '') {
+  $block = array();
+  switch ($delta) {
+    case 'related_videos' :
+      $node = menu_get_object();
+      if (empty($node) || $node->type != 'video') {
+        return array();
+      }
+      $block['title'] = t('Related videos');
+      $block['content'] = array(
+        '#pre_render' => array(
+          'rus_related_videos_popular_by_tag_pre_render',
+        ),
+        '#node' => $node,
+      );
+      break;
+  }
+  return $block;
+}
+
+/**
+ * Pre-render function to get popular video nodes based on current node's tag.
+ */
+function rus_related_videos_popular_by_tag_pre_render($elements) {
+  $videos = array();
+  $node = $elements['#node'];
+  // Check for manually-entered related videos on the node.
+  if (!empty($node->field_ref_node)) {
+    foreach ($node->field_ref_node[LANGUAGE_NONE] as $nid) {
+      if (!empty($nid['nid'])) {
+        $videos[] = drupal_render(node_view(node_load($nid['nid']), 'teaser'));
+      }
+    }
+  }
+  $max_vids = variable_get('max_related_videos', '10');
+  // If we have enough videos configured, skip any backfill processing.
+  if (count($videos) < $max_vids) {
+    $tid = $node->field_term_sport[LANGUAGE_NONE][0]['tid'];
+
+    // Get the top 10 most popular videos for the associated sport term.
+    $query = 'SELECT n.nid
+      FROM {field_data_field_term_sport} fd 
+      LEFT JOIN {node_counter} nc 
+        ON nc.nid = fd.entity_id 
+      LEFT JOIN {node} n
+        on n.nid = fd.entity_id
+      WHERE fd.field_term_sport_tid = :tid
+        AND fd.bundle = :bundle 
+        AND fd.entity_type = :entity_type
+      ORDER BY nc.daycount desc, nc.totalcount desc, n.created desc';
+    $results = db_query_range($query, 0, $max_vids, array(':tid' => $tid, ':bundle' => 'video', ':entity_type' => 'node'))->fetchAll();
+    foreach ($results as $result) {
+      // Do some basic deduplication and quit adding after we've hit the max.
+      if ((count($videos) < $max_vids) && !in_array($result->nid, $videos)) {
+        $videos[] = drupal_render(node_view(node_load($result->nid), 'teaser'));
+      }
+    }
+  }
+  $elements['video_list'] = array(
+    '#theme' => 'list',
+    '#items' => $videos,
+    '#type' => 'ul',
+  );
+  return $elements;
+}

@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Rising Up Sports Commerce feature.
+ */
+
+include_once 'rus_commerce.features.inc';

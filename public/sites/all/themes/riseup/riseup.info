@@ -1,0 +1,35 @@
+name = Rise Up
+description = A theme for the Rising Up Sports network.
+version = 1.x
+core = 7.x
+base theme = pure
+
+regions[page_top] = 'Page Top'
+regions[content] = 'Content'
+regions[callout] = 'Callouts'
+regions[user_first] = 'User Bar First'
+regions[user_second] = 'User Bar Second'
+regions[branding] = 'Branding'
+regions[menu] = 'Menu'
+regions[sidebar_first] = 'Sidebar First'
+regions[sidebar_second] = 'Sidebar Second'
+regions[header_first] = 'Header First'
+regions[header_second] = 'Header Second'
+regions[preface_first] = 'Preface First'
+regions[preface_second] = 'Preface Second'
+regions[preface_third] = 'Preface Third'
+regions[postscript_first] = 'Postscript First'
+regions[postscript_second] = 'Postscript Second'
+regions[postscript_third] = 'Postscript Third'
+regions[postscript_fourth] = 'Postscript Fourth'
+regions[footer_first] = 'Footer First'
+regions[footer_second] = 'Footer Second'
+regions[page_bottom] = 'Page Bottom'
+
+stylesheets[all][] = styles/screen.css
+stylesheets[all][] = styles/alpha-default-normal-12.css
+
+scripts[] = scripts/riseup.js
+scripts[] = scripts/jquery.formalize.js
+
+include directories[] = overrides

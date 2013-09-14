@@ -1,0 +1,591 @@
+<?php
+/**
+ * @file rus_helper.install
+ * Contains install and update functions for RUS Helper.
+ */
+
+
+function rus_helper_install() {
+  $role = new stdClass();
+  $role->name = 'Subscriber';
+  $role->weight = 10;
+  user_role_save($role);
+  rus_helper_add_product_fields();
+}
+
+/**
+ * Sets up broadcast schedule date format.
+ */
+function rus_helper_update_6000() {
+  $date_format = 'n/j/Y g:ia';
+  $date_format_id = db_insert('date_formats')
+    ->fields(array(
+      'format' => $date_format,
+      'type' => 'custom',
+      'locked' => 0,
+    ))
+    ->execute();
+  
+  if ($date_format_id) {
+    variable_set('date_format_broadcast_schedule', $date_format);
+    return t('Date format added.');
+  }
+  return t('NO date format added?');
+}
+
+/**
+ * Sets up the rus_OpenX-All-200x90 block to not be restricted by pages.
+ */
+function rus_helper_update_7001() {
+  $num_updated = db_update('block')
+    ->fields(array('pages' => '', 'region' => -1, 'visibility' => 0))
+    ->condition('module', 'rus_helper')
+    ->condition('theme', 'omega_rus')
+    ->condition('delta', 'rus_OpenX-All-200x90')
+    ->execute();
+  watchdog('rus_helper', 'Updated @count blocks', array('@count' => $num_updated));
+}
+
+/**
+ * Enables commerce modules in order.
+ */
+function rus_helper_update_7002() {
+  $modules = array(
+    'addressfield',
+    'commerce', 'commerce_ui',
+    'commerce_customer', 'commerce_customer_ui',
+    'commerce_price',
+    'commerce_line_item', 'commerce_line_item_ui',
+    'commerce_order', 'commerce_order_ui',
+    'commerce_payment', 'commerce_product','commerce_product_reference', 'commerce_checkout',
+    'commerce_cart', 'commerce_product_pricing',
+    'commerce_product_ui', 'commerce_payment_ui',
+    'commerce_tax', 'commerce_tax_ui',
+    'commerce_checkout_redirect',
+    'entityreference', 'commerce_coupon', 'commerce_coupon_ui',
+    'commerce_coupon_pct', 'commerce_coupon_fixed_amount',
+  );
+  module_enable($modules, FALSE);
+}
+
+/**
+ * Create 'Subscriber' Role, add field_subscription_duration
+ */
+function rus_helper_update_7003() {
+  $role = new stdClass();
+  $role->name = 'Subscriber';
+  $role->weight = 10;
+  user_role_save($role);
+  
+  rus_helper_add_product_fields();
+  rus_helper_add_line_item_fields();
+}
+
+function rus_helper_add_product_fields($update = FALSE) {
+  $fields = array(
+    'field_subscription_duration' => array(
+      'field_name' => 'field_subscription_duration',
+      'cardinality' => 1,
+      'type' => 'number_integer',
+      'label' => 'Subscription Duration',
+      'description' => 'Enter the number of days which a subscription bought with this product will last.',
+      'instance_settings' => array(
+        'min' => 1,
+        'max' => 46000,
+        'suffix' => 'day|days',
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'hidden',
+          'type' => 'hidden',
+        ),
+      ),
+    ),
+  );
+  
+  _rus_helper_install_create_fields($fields);
+  _rus_helper_install_create_instances($fields, 'commerce_product', 'product', $update);
+}
+
+function rus_helper_add_line_item_fields($update = FALSE) {
+  $fields = array(
+    'field_subscription_duration' => array(
+      'field_name' => 'field_subscription_duration',
+      'cardinality' => 1,
+      'type' => 'number_integer',
+      'label' => 'Subscription Duration',
+      'description' => 'Enter the number of days which a subscription bought with this product will last.',
+      'instance_settings' => array(
+        'min' => 1,
+        'max' => 46000,
+        'suffix' => 'day|days',
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'hidden',
+          'type' => 'hidden',
+        ),
+      ),
+    ),
+  );
+  
+  _rus_helper_install_create_fields($fields);
+  _rus_helper_install_create_instances($fields, 'commerce_line_item', 'product', $update);
+  _rus_helper_install_create_instances($fields, 'commerce_order', 'commerce_order', $update);
+}
+
+/**
+ * Takes a list of field definitions and creates them if they do not already exist.
+ *
+ * @param Array $fields
+ *   Array of field definitions such as would be passed to field_create_field
+ *
+ * @see field_create_field()
+ */
+function _rus_helper_install_create_fields($fields) {
+  foreach ($fields as $field_name => &$field) {
+    if (!isset($field['field_name']) || $field_name != $field['field_name']) {
+      $field['field_name'] = $field_name;
+    }
+    $existing_field = field_read_field($field_name);
+    if (!$existing_field) {
+      field_create_field($field);
+    }
+  }
+}
+
+/**
+ * Takes a list of field instance definitions and creates them on a given bundle if they do not already exist.
+ *
+ * @param Array $fields
+ *   Array of field instance definitions such as would be passed to field_create_instance.
+ * @param String $entity_type
+ *   Entity type to add the instances to.
+ * @param String $bundle
+ *   Entity bundle to add the instances to.
+ *
+ * @see field_create_instance()
+ */
+function _rus_helper_install_create_instances(&$fields, $entity_type, $bundle, $update = FALSE) {
+  foreach ($fields as $field_name => &$field) {
+    $field += array(
+      'settings' => array(),
+      'instance_settings' => array(),
+    );
+    $field['settings'] += $field['instance_settings'];
+    if (!isset($field['field_name']) || $field_name != $field['field_name']) {
+      $field['field_name'] = $field_name;
+    }
+    
+    $field_instance = field_info_instance($entity_type, $field_name, $bundle);
+
+    if (!$field_instance) {
+      $field['bundle'] = $bundle;
+      $field['entity_type'] = $entity_type;
+      if (!isset($field['display'])) {
+        $field['display'] = array(
+          'default' => array(
+            'label' => 'hidden',
+          ),
+        );
+      }
+      field_create_instance($field);
+    }
+    else if ($update) {
+      $field_instance = $field + $field_instance;
+      if (isset($field_instance['display']['default']['label']) && $field_instance['display']['default']['label'] == 'none') {
+        $field_instance['display']['default']['label'] = 'hidden';
+      }
+      // Remove 'full' display info which is not used.
+      if (isset($field_instance['display']['full'])) {
+        unset($field_instance['display']['full']);
+      }
+      field_update_instance($field_instance);
+    }
+  }
+}
+
+/**
+ * Create the subscription node type.
+ */
+function rus_helper_create_subscription_node_type() {
+  $node_types = node_type_get_types();
+  if (!isset($node_types['subscription'])) {
+    $type = new stdClass();
+    $type->type = 'subscription';
+    $type->name = 'Subscription';
+    $type->title_label = 'Subscription Title';
+    $type->custom = FALSE;
+    $type->module = 'node';
+    $type->base = 'node_content';
+    $type->description = 'This node type represents subscriptions a user may purchase.';
+    
+    node_type_save($type);
+    
+    variable_set('comment_subscription', COMMENT_NODE_HIDDEN);
+    variable_set('pathauto_node_subscription_pattern', 'subscription/[node:title]');
+  }
+}
+
+/**
+ * Create/update the subscription node fields.
+ */
+function rus_helper_create_subscription_node_fields($update = FALSE) {
+  $fields = array(
+    'body' => array(
+      'cardinality' => 1,
+      'field_name' => 'body',
+      'type' => 'text_with_summary',
+      'label' => 'Description',
+      'description' => 'Describe the subscription.',
+      'weight' => -1,
+      'display' => array(
+        'default' => array(
+          'label' => 'hidden',
+        ),
+        'teaser' => array(
+          'label' => 'hidden',
+          'type' => 'text_summary_or_trimmed',
+        ),
+      ),
+    ),
+    'field_product' => array(
+      'field_name' => 'field_product',
+      'cardinality' => 1,
+      'type' => 'commerce_product_reference',
+      'label' => 'Product',
+      'required' => TRUE,
+      'description' => 'Choose the product which is sold with this node.',
+      'instance_settings' => array(
+        'referenceable_types' => array('product'),
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'hidden',
+          'type' => 'commerce_cart_add_to_cart_form',
+        ),
+        'teaser' => array(
+          'label' => 'hidden',
+          'type' => 'commerce_cart_add_to_cart_form',
+        ),
+      ),
+    ),
+  );
+  
+  _rus_helper_install_create_fields($fields);
+  _rus_helper_install_create_instances($fields, 'node', 'subscription', $update);
+}
+
+/**
+ * Create the Subscription node type and fields.
+ */
+function rus_helper_update_7004() {
+  rus_helper_create_subscription_node_type();
+  rus_helper_create_subscription_node_fields();
+}
+
+/**
+ * Create products.
+ */
+function rus_helper_update_7005() {
+  $product_array = array(
+    1 => array(
+      'title' => 'Day Pass',
+      'price' => 5,
+      'body' => 'Access for 24 hours.',
+      'field_subscription_duration' => 1,
+    ),
+    30 => array(
+      'title' => 'Month Pass',
+      'price' => 25,
+      'body' => 'Access for 30 days.',
+      'field_subscription_duration' => 30,
+    ),
+    180 => array(
+      'title' => 'Six Month Pass',
+      'price' => 65,
+      'body' => 'Access for 180 days.',
+      'field_subscription_duration' => 180,
+    ),
+    365 => array(
+      'title' => 'Year Pass',
+      'price' => 100,
+      'body' => 'Access for 365 days.',
+      'field_subscription_duration' => 365,
+    ),
+  );
+  
+  foreach ($product_array as $product_data) {
+    $product = commerce_product_new('product');
+    $product->title = $product_data['title'];
+    $product->status = 1;
+    $product->sku = 'SUB-' . $product_data['field_subscription_duration'];
+    $product->uid = 1;
+    $product->commerce_price[LANGUAGE_NONE][0]['amount'] = $product_data['price'] * 100;
+    $product->commerce_price[LANGUAGE_NONE][0]['currency_code'] = 'USD';
+    $product->field_subscription_duration[LANGUAGE_NONE][0]['value'] = $product_data['field_subscription_duration'];
+    
+    if (SAVED_NEW == commerce_product_save($product)) {
+      // Create node to present the product.
+      $node = new stdClass();
+      $node->title = $product_data['title'];
+      $node->status = 1;
+      $node->type = 'subscription';
+      $node->uid = 1;
+      $node->language = LANGUAGE_NONE;
+      $node->promote = 0;
+      $node->body[LANGUAGE_NONE][0]['value'] = $product_data['body'];
+      $node->field_product[LANGUAGE_NONE][0]['product_id'] = $product->product_id;
+      
+      if (SAVED_NEW == node_save($node)) {
+        watchdog('rus_helper', 'Created subscription @title', array('@title' => $product_data['title']), WATCHDOG_NOTICE);
+      }
+    }
+  }
+}
+
+/**
+ * Add subscription expiration field to user entity.
+ */
+function rus_helper_add_user_fields($update = FALSE) {
+  $fields = array(
+    'field_subscription_expire_date' => array(
+      'field_name' => 'field_subscription_expire_date',
+      'cardinality' => 1,
+      'type' => 'datetime',
+      'label' => 'Subscription Expiration Date',
+      'description' => "This is the date when this user's subscription will expire.",
+      'display' => array(
+        'default' => array(
+          'label' => 'inline',
+        ),
+      ),
+    ),
+  );
+  
+  _rus_helper_install_create_fields($fields);
+  _rus_helper_install_create_instances($fields, 'user', 'user', $update);
+}
+
+/**
+ * Create subscription expiration field on user.
+ */
+function rus_helper_update_7006() {
+  rus_helper_add_user_fields();
+  _rus_helper_set_permissions();
+}
+
+/**
+ * Sets commerce permissions.
+ */
+function _rus_helper_set_permissions() {
+  $permissions = array(
+    "access checkout",
+    "view any commerce_product entity",
+    "view any commerce_product entity of bundle product",
+  );
+  
+  user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, $permissions);
+  user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, $permissions);
+  
+  // This is the permissions which lets someone edit the field_subscription_expiration field.
+  $permissions = array('edit_user_subscription_expiration_date');
+  user_role_grant_permissions(3, $permissions);
+}
+
+/**
+ * Create nodequeue for featured videos.
+ */
+function rus_helper_update_7007() {
+  module_enable(array('nodequeue'));
+  
+  $nodequeue = new nodequeue_queue('nodequeue');
+  $nodequeue->name = 'featured_videos';
+  $nodequeue->title = 'Featured videos';
+  $nodequeue->link = 'Add to featured videos';
+  $nodequeue->link_remove = 'Remove from featured videos';
+  $nodequeue->roles = array(3, 4);
+  $nodequeue->types = array('video');
+  
+  nodequeue_save($nodequeue);
+  
+  db_insert('nodequeue_subqueue')->fields(array(
+    'qid' => $nodequeue->qid,
+    'title' => 'featured_videos',
+    'reference' => $nodequeue->qid,
+  ))->execute();
+}
+
+/**
+ * Enable new modules.
+ */
+function rus_helper_update_7008() {
+  $modules = array('rus_livestream', 'rus_related_videos');
+  module_enable($modules);
+}
+/**
+ * Add is_free checkbox to video, event nodes.
+ */
+function rus_helper_update_7009() {
+  $fields = array(
+    'field_is_free' => array(
+      'field_name' => 'field_is_free',
+      'cardinality' => 1,
+      'type' => 'list_boolean',
+      'label' => 'Is Free',
+      'required' => FALSE,
+      'description' => 'Select if this event or video is meant to be free.',
+      'settings' => array(
+        'allowed_values' => array(0 => '0', 1 => 'Is Free'),
+      ),
+      'widget' => array(
+        'type' => 'options_onoff',
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'hidden',
+          'type' => 'hidden',
+        ),
+      ),
+    ),
+  );
+  
+  _rus_helper_install_create_fields($fields);
+  _rus_helper_install_create_instances($fields, 'node', 'video', TRUE);
+  _rus_helper_install_create_instances($fields, 'node', 'event', TRUE);
+}
+
+/**
+ * Terms and Conditions work.
+ */
+function rus_helper_update_7010() {
+  // Enable Module.
+  module_enable(array('commerce_extra_panes', 'commerce_extra_panes_termsofservice'));
+  
+  // Create T&C node:
+  $node = new stdClass();
+  $node->title = 'Terms of Service';
+  $node->status = 1;
+  $node->type = 'article';
+  $node->uid = 1;
+  $node->language = LANGUAGE_NONE;
+  $node->promote = 0;
+  $node->body[LANGUAGE_NONE][0]['value'] = <<<TOS
+<p>Effective May 6, 2013<br />
+	THIS IS A CONTRACT. PLEASE CAREFULLY READ THE FOLLOWING TERMS BEFORE ACCESSING THIS SITE AND/OR STREAMING ANY VIDEO ON THIS SITE. BY ACCESSING THIS SITE, YOU ACCEPT AND AGREE TO ALL OF THE COVENANTS AND CONDITIONS IMPOSED IN THIS AGREEMENT. IF YOU DO NOT AGREE TO THESE TERMS, YOU MAY NOT ACCESS THE SITE.<br />
+	BY USING THE RISING UP SPORTS SERVICE ON THIS SITE, YOU AGREE THAT YOU HAVE READ, UNDERSTAND AND AGREE TO THESE TERMS. YOU ALSO AGREE TO REVIEW THIS AGREEMENT PERIODICALLY TO BE AWARE OF MODIFICATIONS TO THE AGREEMENT, WHICH MODIFICATIONS WE MAY MAKE AT ANY TIME. YOUR CONTINUED USE OF THIS SITE WILL BE DEEMED YOUR CONCLUSIVE ACCEPTANCE OF ANY MODIFIED AGREEMENT.<br />
+	<strong>1. Contact Information.</strong><br />
+	Rising Up Sports, LLC<br />
+	Website: http://risingupsports.com<br />
+	Customer Service<br />
+	Email: contact@risingupsports.com<br />
+	<strong>2. Definitions.</strong><br />
+	&ldquo;Access&rdquo; or &ldquo;Accessing&rdquo; means accessing, using, viewing the content or otherwise obtaining information on the Site.<br />
+	&ldquo;Agreement&rdquo; or &ldquo;Terms&rdquo; refers to these Terms and Conditions of Use and any subsequent modifications.<br />
+	&ldquo;Rising Up Sports Service&rdquo; means the subscription service to obtain access to this Site and its content.<br />
+	&ldquo;Rising Up Sports&rdquo; refers to Rising Up Sports, LLC, a Virginia Limited Liability Company..<br />
+	&ldquo;Subscriber&rdquo; refers to any person or entity that purchases or uses a subscription to the Rising Up Sports Service.<br />
+	&ldquo;User&rdquo; refers to any party who Accesses the Site. If You are Accessing the Site as an employee or agent of another, &ldquo;User&rdquo; refers to You and Your principal.<br />
+	&ldquo;Website&rdquo; or &ldquo;Site&rdquo; refers to the website maintained on the World Wide Web by Rising Up Sports.<br />
+	&ldquo;You&rdquo; or &ldquo;Your&rdquo; refers to the User. If You are Accessing the Site as an employee or agent of another, &ldquo;You&rdquo; or &ldquo;Your&rdquo; refers to the User and the User&rsquo;s principal.<br />
+	<strong>3. Modification of Terms.</strong><br />
+	Rising Up Sports reserves the right to modify these Terms at any time. Except as otherwise stated herein, any change to these Terms is effective immediately after Rising Up Sports gives notice to the User. Notice can be given through e-mail, a posting on the Site or any other means by which a User may obtain notice. User agrees to check the Site periodically for changes to these Terms. Any use of the Site after changes have been made shall be deemed acceptance of those changed terms and/or conditions.<br />
+	<strong>4. Limited License.</strong><br />
+	Rising Up Sports hereby grants each Subscriber a limited, non-exclusive, non-sublicensable and non-transferable license to Access the content and information available on this Site according to the provisions contained herein, and subject to the payment of the applicable subscription fees and adherence to these Terms.<br />
+	<strong>5. Fees; Renewal; Refund Policies.</strong><br />
+	Subscriptions are on a day-to-day basis and provide the User Access to this entire Site. Rising Up Sports may provide multiple subscription options for a single day or multiple consecutive days (e.g., Month Pass = 30 consecutive days).<br />
+	Subscription fees are non-refundable; except that Subscriber may cancel renewed subscription in writing up to three (3) calendar days after renewal date and receive a full refund of the new subscription fees<br />
+	Discounts, rebates or other special offers only valid for initial term<br />
+	Rising Up Sports may increase subscription fees for a subsequent subscription period at any time and for any reason<br />
+	Rising Up Sports may terminate the subscription and these Terms if unable to verify the subscription based on inaccurate or outdated credit card information<br />
+	Right of Access to this Site&nbsp; granted under these Terms is effective only upon payment of the subscription fees<br />
+	<strong>6. Access to the Rising Up Sports Service; Modification of Content.</strong><br />
+	Rising Up Sports strives to provide the Rising Up Sports Service to its Subscribers on a continuous basis. To that end, Rising Up Sports will take all commercially reasonable efforts to provide uninterrupted Access to the Rising Up Sports Service to its Subscribers. However, from time to time, Subscribers may be unable to Access the Rising Up Sports Service due to conditions beyond Rising Up Sports&rsquo;s control. Such conditions include, but are not limited to: force majeure, acts of God, power outages, and the acts of computer hackers and others acting outside the law. Also, from time to time, Access may be unavailable due to software issues, server downtime, increased Internet traffic or downtime, programming errors, regular maintenance of the system, and other related reasons. In response to any unavailability of the Rising Up Sports Service to its Subscribers, Rising Up Sports will take all commercially reasonable steps to ensure Access is restored within a reasonable period of time. The term &ldquo;commercially reasonable,&rdquo; as used in these Terms, shall mean reasonable efforts taken in good faith without an unduly or burdensome use or expenditure of time, resources, personnel or money.<br />
+	Rising Up Sports endeavors to provide the highest quality content to its Subscribers. To that end, Rising Up Sports reserves the right, in its sole discretion, to change, modify, or discontinue any aspect or feature of this Site in whole or in part, including, without limitation, the content, availability, Access and/or the Terms of this Site. Such changes, modifications, additions or deletions will be effective immediately upon notice thereof, which notice may be made by posting such changes on this Site.<br />
+	Users are solely responsible for ensuring that they have sufficient and compatible hardware, software, telecommunications equipment and Internet service necessary for use of the Site.<br />
+	<strong>7. Prohibited Conduct.</strong><br />
+	User expressly agrees to refrain from doing, either personally or through an agent, any of the following &ldquo;Prohibited Conduct&rdquo;:<br />
+	Transmit, install, upload or otherwise transfer any virus, advertisement, communication, or other item or process to the Site that in any way affects the use, enjoyment or service of the Site, or adversely affects Rising Up Sports&rsquo;s computers, servers or databases.<br />
+	Capture, download, save, upload, print or otherwise retain information and content available on the Site other than what is expressly allowed by these Terms.<br />
+	Permit or provide others Access to the Rising Up Sports Service using Your user name and password or otherwise, or the name and password of another authorized User.<br />
+	Copy, modify, reverse engineer, disassemble, redistribute, republish, alter, create derivative works from, assign, license, transfer or adapt any of the software, information, text, graphics, source code or HTML code, or other content available on the Site.<br />
+	Remove or modify any copyright, trademark, legal notices, or other proprietary notations from the content available on the Site.<br />
+	Transfer the Site content to another person; &ldquo;frame,&rdquo; &ldquo;mirror,&rdquo; &ldquo;in-line link,&rdquo; or employ similar navigational technology to the Site content; or &ldquo;deep link&rdquo; to the Site content.<br />
+	Violate or attempt to violate Rising Up Sports&rsquo;s security mechanisms, Access any data or server You are not authorized to Access or otherwise breach the security of the Site or corrupt the Site in any way.<br />
+	Engage in any other conduct which violates the Copyright Act or other laws of the United States.<br />
+	Use any device (such as a &ldquo;web crawler&rdquo; or other automatic retrieval mechanism) or other means to harvest information about other Users, the Site or Rising Up Sports.<br />
+	Use the Site to violate a third party&rsquo;s intellectual property, personality, publicity or confidentiality rights; upload, download, display, publish, perform, create derivative works from, transmit, or otherwise distribute information or content in violation of a third party&rsquo;s intellectual property rights.<br />
+	Misrepresent Your identity or personal information when Accessing the Site; forge any TCP/IP packet header or any part of the header information in any e-mail so that the e-mail appears to be generated by Rising Up Sports.<br />
+	Post obscene, harassing, defamatory, filthy, violent, pornographic, abusive, threatening, objectionable or illegal material on the Site; post a communication that advocates or encourages criminal conduct or conduct that may give rise to civil liability.<br />
+	Advertise or otherwise solicit funds, goods or services on the Site.<br />
+	Provide any commercial hosting service with Access to the Site and/or the content on the Site.<br />
+	To ensure that Users of the Site do not engage in Prohibited Conduct, Rising Up Sports reserves the right to monitor use of the Site and reserves the right to revoke or deny Access to the Rising Up Sports Service to any person or entity whose use of the Rising Up Sports Service suggests Prohibited Conduct. Access of the materials available at the Rising Up Sports Service beyond that of normal patterns of use that suggests systematic copying of the materials constitutes abuse of the Rising Up Sports Service and will result in revocation or denial of Access to the Rising Up Sports Service. The terms &ldquo;normal patterns&rdquo; and &ldquo;abuse&rdquo; shall be determined solely by Rising Up Sports.<br />
+	You agree not to violate any U.S., foreign or international software or technology export laws and regulations, including without limitation the U.S. Export Administration Regulations.<br />
+	<strong>8. LIMITED WARRANTIES.</strong><br />
+	Rising Up Sports warrants that the software that allows Users to Access the Rising Up Sports Service (&ldquo;Software&rdquo;), if operated as directed, will substantially achieve the functionality described on the Site. RISING UP SPORTS PROVIDES NO WARRANTY THAT YOUR HARDWARE, SOFTWARE, TELECOMMUNICATIONS EQUIPMENT AND/OR INTERNET SERVICE IS COMPATIBLE OR SUFFICIENT TO ACCESS THE SITE.<br />
+	ALTHOUGH RISING UP SPORTS HAS ATTEMPTED TO PROVIDE ACCURATE INFORMATION ON THE SITE, IT MAKES NO GUARANTEE OR WARRANTY, EXPRESS OR IMPLIED, AS TO THE RELIABILITY, ACCURACY, TIMELINESS OR COMPLETENESS OF THAT INFORMATION AND ASSUMES NO RESPONSIBILITY FOR ANY ERRORS OR OMISSIONS THEREIN.<br />
+	<strong>9. DISCLAIMERS AND LIMITATION OF LIABILITY.</strong><br />
+	USER ACCESSES THIS SITE AT HIS/HER/ITS OWN RISK. THE SITE IS PROVIDED ON AN &ldquo;AS IS, AS AVAILABLE&rdquo; BASIS WITHOUT WARRANTY OF ANY KIND (BEYOND THE WARRANTIES SET FORTH IN SECTION 8), EXPRESSED, IMPLIED OR STATUTORY, AND ANY AND ALL WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NON-INFRINGEMENT OF THIRD PARTIES&rsquo; RIGHTS ARE SPECIFICALLY DISCLAIMED. RISING UP SPORTS DOES NOT WARRANT ANY PARTICULAR RESULT FROM USE OF THE SOFTWARE OR SITE. RISING UP SPORTS DOES NOT WARRANT THAT THE INFORMATION ON THE SITE IS ACCURATE, COMPLETE OR COMPLIES WITH ANY PARTICULAR LAW OR REGULATION, OR THAT THE OPERATION OF AND YOUR ACCESS TO THE SITE WILL BE UNINTERRUPTED, ERROR-FREE, VIRUS-FREE OR COMPLETELY SECURE. UNDER NO CIRCUMSTANCES AND UNDER NO LEGAL THEORY (TORT, CONTRACT OR OTHERWISE) SHALL RISING UP SPORTS OR ANY OF ITS AFFILIATES, AGENTS, EMPLOYEES, SHAREHOLDERS, DIRECTORS, OFFICERS, THIRD PARTY CONTENT PROVIDERS, SUCCESSORS OR ASSIGNS BE LIABLE TO YOU OR ANY OTHER PERSON OR ENTITY FOR ANY INDIRECT, SPECIAL, INCIDENTAL, PUNITIVE OR CONSEQUENTIAL DAMAGES OF ANY CHARACTER, INCLUDING WITHOUT LIMITATION, DAMAGES FOR LOSS OF GOODWILL, WORK STOPPAGE, COMPUTER FAILURE OR MALFUNCTION, LOSS OF DATA, LOSS OF PRODUCTIVITY OR CONTRACT, OR ANY AND ALL OTHER COMMERCIAL DAMAGES OR LOSSES. YOUR USE OF THIS SITE IS AT YOUR SOLE RISK AND ANY CONTENT THAT YOU DOWNLOAD IS DOWNLOADED AT YOUR OWN DISCRETION AND RISK, AND YOU ARE SOLELY RESPONSIBLE FOR ANY DAMAGE TO YOUR COMPUTER SYSTEM IN EXCESS OF THE AMOUNT RISING UP SPORTS RECEIVED FROM THE SUBSCRIBER FOR A SUBSCRIPTION TO ACCESS THE RISING UP SPORTS SERVICE, AND FOR ANY LOSS OF DATA THAT RESULTS FROM THE DOWNLOADING OF ANY SUCH CONTENT, INCLUDING ANY DAMAGES RESULTING FROM COMPUTER VIRUSES. IN NO EVENT WILL RISING UP SPORTS BE LIABLE FOR ANY DAMAGES IN EXCESS OF THE AMOUNT RISING UP SPORTS RECEIVED FROM THE SUBSCRIBER FOR A SUBSCRIPTION TO ACCESS THE RISING UP SPORTS SERVICE, EVEN IF RISING UP SPORTS SHALL HAVE BEEN INFORMED OF THE POSSIBILITY OF SUCH DAMAGES, OR FOR ANY CLAIM BY ANY OTHER PARTY. IN NO EVENT WILL WARRANTIES PROVIDED BY LAW, IF ANY, APPLY UNLESS THEY ARE REQUIRED TO APPLY BY STATUTE NOTWITHSTANDING THEIR EXCLUSION BY CONTRACT. THIS DISCLAIMER IS APPLICABLE TO ANY DAMAGE OR INJURY RESULTING FROM THE NEGLIGENCE OR AN OMISSION OF RISING UP SPORTS, COMPUTER VIRUS OR OTHER SIMILAR ITEM, TELECOMMUNICATIONS ERRORS, OR UNAUTHORIZED ACCESS TO OR USE OF USER INFORMATION THROUGH THEFT OR ANY OTHER MEANS. RISING UP SPORTS IS NOT LIABLE FOR CRIMINAL, TORTIOUS, OR NEGLIGENT ACTIONS OR OMISSIONS OF THIRD PARTIES THAT AFFECT THIS SITE.<br />
+	NO DEALER, AGENT, OR EMPLOYEE OF RISING UP SPORTS IS AUTHORIZED TO MAKE ANY MODIFICATIONS, EXTENSION, OR ADDITIONS TO THESE LIMITED WARRANTIES OR DISCLAIMERS.<br />
+	RISING UP SPORTS DISCLAIMS ALL WARRANTIES, AND SHALL HAVE NO LIABILITY FOR DAMAGES IN EXCESS OF THE AMOUNT RISING UP SPORTS RECEIVED FROM THE SUBSCRIBER, ARISING FROM OR RELATED TO ANY SUPPORT SERVICES FOR YOUR USE OF THE SITE.<br />
+	THE LAWS OF YOUR JURISDICTION MAY PROHIBIT OR MODIFY THE FOREGOING DISCLAIMERS AND LIMITATIONS ON DAMAGES, AND SUCH DISCLAIMERS OR LIMITATIONS ON DAMAGES MAY NOT APPLY TO YOU.<br />
+	<strong>10. Third Party Content; Hyperlinks.</strong><br />
+	You acknowledge that Rising Up Sports does not pre-screen third party materials. Rising Up Sports is not the publisher or author of any information on the Site that is provided by third party content providers, and Rising Up Sports is not liable for any claims related to such information. Content provided by third parties is for informational purposes only, and Rising Up Sports&rsquo;s use of the content constitutes neither an endorsement nor a recommendation by Rising Up Sports of the content. Rising Up Sports assumes no responsibility for third party products or services.<br />
+	Rising Up Sports may contain links and references to other third party websites and materials. Rising Up Sports does not assume any responsibility for these websites or materials and provides these links or materials solely for the convenience of Users. Rising Up Sports does not endorse or otherwise recommend any of these third party websites, references, or the products, services, or information there offered. Rising Up Sports may disable any hyperlink to the Site. Rising Up Sports has the right but not obligation to monitor third party websites and hyperlinks to the Site.<br />
+	RISING UP SPORTS MAKES NO WARRANTY, EITHER EXPRESSED OR IMPLIED, OF THE ACCURACY, MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT OF THE INFORMATION PROVIDED BY THIRD PARTIES. THIS INCLUDES, BUT IS NOT LIMITED TO, ANY INFORMATION FOUND ON A LINK LOCATED ON THIS SITE THAT ALLOWS USERS TO ACCESS INFORMATION FOUND ON ANOTHER SITE. ADDITIONALLY, RISING UP SPORTS DOES NOT WARRANT THE EXISTENCE OR FUNCTIONALITY OF ANY WEBSITE WHICH CAN BE ACCESSED THROUGH A LINK LOCATED ON THIS SITE.<br />
+	<strong>11. Copyrights, Trademarks and Other Proprietary Rights.</strong><br />
+	Rising Up Sports or its third party content providers shall retain all worldwide rights in the intellectual property in and on the Site, including, but not limited to, trademarks, service marks, trade dress, inventions, ideas, trade secrets, source code not falling under an open source license, the HTML code, the &quot;look and feel&quot; of the Site, its color combinations, layout, and all other graphical elements, and the copyrights in and to its original content. You should assume that everything You read or see on the Site is copyrighted, trademarked, or otherwise protected and owned or licensed by Rising Up Sports. Except as expressly stated on the Site or in these Terms, nothing that You read or see on the Site or in the Rising Up Sports Service may be copied, reproduced, modified, distributed, transmitted, republished, displayed or performed for commercial use without the prior written consent of Rising Up Sports, except as provided in these Terms. Nothing in these Terms grants You an express or implied license to use any of Rising Up Sports&rsquo;s intellectual property except as set forth in Section 4.<br />
+	If You submit any unsolicited intellectual property, idea, copyrightable material, invention, discovery, improvement, trade secret or know-how to Rising Up Sports, You may forfeit Your intellectual property rights and moral rights contained in such communication or material.<br />
+	<strong>12. Indemnification.</strong><br />
+	User agrees to defend, indemnify and otherwise hold harmless Rising Up Sports and its officers, directors, agents, employees, shareholders, successors and assigns from and against any cause of action or claim, including court costs, expenses and attorney fees, related to or arising from User&rsquo;s Prohibited Conduct or other improper or illegal use of the Site, or breach of these Terms.<br />
+	<strong>12. Security; Authorized Use.</strong><br />
+	Users are prohibited from violating or attempting to violate the security of the Site. Rising Up Sports has the right but not the obligation to investigate occurrences of possible violations and will cooperate with all applicable law enforcement authorities in prosecuting violators. Rising Up Sports may suspend Your Access while it conducts an investigation. Users are required to enter a user name and password to Access the Rising Up Sports Service. To protect against unauthorized Access to Your account, it is recommended that You close the browser when You have finished using the Site. You are responsible for maintaining the secrecy of Your user name and password.<br />
+	You represent and warrant that You are the person on whose behalf You claim to accept these Terms, or, if You are entering into these Terms on behalf of a person or entity, You represent and warrant that You have the power and authority to enter into these Terms and bind the person or entity. You also represent and warrant that You are an adult who is legally able to enter into these Terms.<br />
+	You may not use the account, user name or password of someone else at any time. You agree to notify Rising Up Sports immediately of any unauthorized use or loss of Your account, user name, password and/or credit card information. You also agree to notify Rising Up Sports immediately if You are aware of or suspect other unauthorized use of the Site and/or the Site content. Rising Up Sports will not be liable for any loss that You incur as a result of someone else using Your user name and password with or without Your knowledge. You may be held liable for any losses incurred by Rising Up Sports, its affiliates, officers, directors, employees, consultants, agents or representatives due to someone else&rsquo;s use of Your account, user name or password.<br />
+	Rising Up Sports will never ask You for Your password. If You need a new user name and/or password, Rising Up Sports will generate a new user name and password automatically through its computers and send it to Your e-mail.<br />
+	<strong>13. Termination of Agreement.</strong><br />
+	In addition to Rising Up Sports&rsquo;s other rights, it may terminate this Agreement at any time and at its sole and absolute discretion. Rising Up Sports may also terminate Access to the Rising Up Sports Service or cancel subscriptions to the Rising Up Sports Service without notice if it believes, in its sole judgment, that You have breached or may breach any term or condition of this Agreement, or engaged in conduct that Rising Up Sports deems inappropriate.<br />
+	In the event of termination of this Agreement, the provisions in this Section and the provisions found in Sections 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 and 16 shall survive in perpetuity. Each Subscriber&rsquo;s obligation to pay outstanding subscription fees shall survive any termination of this Agreement.<br />
+	<strong>14. Privacy Policy.</strong><br />
+	Rising Up Sports values Your trust. In order to honor that trust, all of Rising Up Sports&rsquo;s employees are required to adhere to ethical standards in gathering, using, and safeguarding any information You provide.<br />
+	<strong>15. Miscellaneous.</strong><br />
+	These Terms constitute the entire agreement between Rising Up Sports and User regarding the subject matter hereof. Any previous agreement, whether oral or written, between Rising Up Sports and User dealing with the subject matter hereof is superseded. These Terms may only be modified or amended in writing. If any portion of these Terms is determined to be unenforceable for any reason, such portion will be deemed severed and the remaining terms and conditions shall continue in full force and effect. Upon User&rsquo;s breach or threatened breach of these Terms, Rising Up Sports may pursue any legal or equitable remedy available, including but not limited to, direct, consequential and punitive damages and injunctive relief. Rising Up Sports&rsquo;s remedies are cumulative and not exclusive. Failure of Rising Up Sports to exercise any remedy or enforce any portion of this Agreement at any time shall not operate as a waiver of any remedy or of the right to enforce any portion of the Agreement at any time thereafter. User agrees that regardless of any statute or law to the contrary, any claim or action arising out of or regarding this Agreement must be filed within one (1) year after such claim or cause of action arose or be forever barred. By Accessing the Site, User signs for and accepts this shortening of the statutes of limitations. Rising Up Sports makes no representation that the content of the Site is appropriate or available for use in all locations. Rising Up Sports operates this Site from the United States and makes no representation that the Site complies with any foreign or international laws. You agree to comply with all applicable local laws, including any international laws, in using this Site. You may not assign Your rights or delegate Your duties under these Terms. The parties agree that no third party is an intended beneficiary of these Terms. Rising Up Sports cannot provide notifications via post, only e-mail.<br />
+	<strong>16. Governing Law; Dispute Resolution; Forum and Venue.</strong><br />
+	This Agreement and the interpretation of its terms shall be governed by and construed in accordance with the laws of the Commonwealth of Virginia, without regard to its conflicts of laws rules. In the event of a dispute, the parties shall engage in a good faith effort to reach an amicable resolution, with or without the assistance of a mediator, prior to commencing legal action. The parties hereby consent to the exclusive jurisdiction of the State and Federal courts in the Commonwealth of Virginia to adjudicate any dispute that may arise between them. Neither party shall have the obligation to post a bond or demonstrate actual harm before bringing a claim or action for injunctive relief. Each party shall bear his/her/its own expenses and attorneys&rsquo; fees related to any arbitration, claim or action.</p>
+
+TOS;
+  $node->body[LANGUAGE_NONE][0]['format'] = 'full_html';
+  $node->comment = 0;
+      
+  node_submit($node);
+  node_save($node);
+  $toc_nid = ($node->nid);
+  
+  if ($toc_nid) {
+    db_insert('commerce_extra_panes')
+        ->fields(array(
+          'extra_id' => $toc_nid,
+          'extra_type' => 'node',
+          'status' => 1,
+        ))
+        ->execute();
+        
+    variable_set('cep_tos_extra_pane__node__' . $toc_nid, 1);
+    variable_set('cep_tos_required_extra_pane__node__' . $toc_nid, 1);
+    variable_set('cep_tos_position_extra_pane__node__' . $toc_nid, 'below');
+  }
+  else {
+    watchdog('rus_helper', 'Did not create terms of service node.', array(), WATCHDOG_NOTICE);
+  }
+}
+
+/**
+ * Small fixes to subscriptions page.
+ */
+function rus_helper_update_7011() {
+  // Hide submitted information.
+  variable_set('node_submitted_subscription', 0);
+  
+  // Added 'Add to Cart' button to teaser of subscription nodes.
+  rus_helper_create_subscription_node_fields(TRUE);
+}

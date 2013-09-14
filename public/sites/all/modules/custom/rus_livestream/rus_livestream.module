@@ -1,0 +1,29 @@
+<?php
+/**
+ * @file rus_livestream.module
+ * Contains custom functions for RUS livestream.
+ */
+
+/**
+ * Implements hook_element_info_alter().
+ *
+ * Override default text format processor function.
+ */
+function rus_livestream_element_info_alter(&$type) {
+  if (isset($type['text_format']['#process'])) {
+    foreach ($type['text_format']['#process'] as &$callback) {
+      if ($callback === 'filter_process_format') {
+        $callback = 'rus_livestream_filter_process_format';
+      }
+    }
+  }
+}
+
+function rus_livestream_filter_process_format($element) {
+  $element = filter_process_format($element);
+
+  if ($element['#bundle'] == 'livestream' && $element['#field_name'] == 'body') {
+    $element['format']['format']['#default_value'] = 'full_html';
+  }
+  return $element;
+}

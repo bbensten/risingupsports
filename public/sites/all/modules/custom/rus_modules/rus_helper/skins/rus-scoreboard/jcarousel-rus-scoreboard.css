@@ -1,0 +1,224 @@
+/**
+ * A simple skin for RUS Scoreboard
+ */
+.jcarousel-skin-rus-scoreboard .jcarousel-item {
+
+	text-transform: uppercase;
+
+	}
+.jcarousel-skin-rus-scoreboard {}
+.jcarousel-skin-rus-scoreboard .jcarousel-container-horizontal {padding: 0px 0px;margin-left:-2px}
+.jcarousel-skin-rus-scoreboard .jcarousel-clip-horizontal {width: 942px;overflow: hidden;  background: url("images/shadow.png") no-repeat scroll center bottom transparent; padding-bottom:3px;}
+.jcarousel-skin-rus-scoreboard .jcarousel-item {
+  width: 140px;
+  	padding:10px 50px ;
+	height:230px;
+
+  list-style: none;
+/*  background: #fff none;*/
+}
+
+.jcarousel-skin-rus-scoreboard .jcarousel-item-horizontal {
+/*  margin: 2px 4px;*/
+}
+
+
+.jcarousel-skin-rus-scoreboard .jcarousel-item-placeholder {
+/*  background: #fff url(throbber.gif) no-repeat center center;*/
+background: url("images/shadow.png") no-repeat scroll center bottom transparent;
+padding-bottom: 27px;
+  color: #000;
+}
+
+/**
+ * Buttons
+ */
+.jcarousel-skin-rus-scoreboard .jcarousel-next,
+.jcarousel-skin-rus-scoreboard .jcarousel-prev {
+  display: block;
+  width: 32px;
+  height: 32px;
+  background-image: url(arrows.png);
+}
+
+
+.jcarousel-skin-rus-scoreboard .jcarousel-prev{background-position: -66px 0px !important;}
+.jcarousel-skin-rus-scoreboard .jcarousel-next{background-position: -60px -32px !important;}
+
+.jcarousel-skin-rus-scoreboard .jcarousel-next-disabled,
+.jcarousel-skin-rus-scoreboard .jcarousel-prev-disabled {
+  display: none;
+}
+
+/**
+ * Horizontal Buttons
+ */
+.jcarousel-skin-rus-scoreboard .jcarousel-prev-horizontal {
+  position: absolute;
+  top: 17px;
+  left: -30px;
+  background-position: 0 0;
+}
+.jcarousel-skin-rus-scoreboard .jcarousel-prev-horizontal:hover {
+  background-position: -32px 0;
+}
+.jcarousel-skin-rus-scoreboard .jcarousel-prev-horizontal:active {
+  background-position: -64px 0;
+}
+
+.jcarousel-skin-rus-scoreboard .jcarousel-next-horizontal {
+  position: absolute;
+  top: 17px;
+  right: -30px;
+  background-position: 0 -32px;
+}
+.jcarousel-skin-rus-scoreboard .jcarousel-next-horizontal:hover {
+  background-position: -32px -32px;
+}
+.jcarousel-skin-rus-scoreboard .jcarousel-next-horizontal:active {
+  background-position: -64px -32px;
+}
+
+.jcarousel-skin-rus-scoreboard .jcarousel-list-horizontal{
+  height:150px; overflow:hidden;
+
+}
+
+
+/*Exposed Filter Manipulations*/
+.view-scoreboard {padding-top:1px;margin-bottom:10px; background-color:#e4e4e4; height:150px; }
+.view-scoreboard .jcarousel-prev-horizontal{}
+.view-scoreboard .jcarousel-next-horizontal{}
+
+
+/*Grid View*/
+.view-scoreboard .bef-select-as-links{padding-left:6px;}
+.view-scoreboard .views-field{padding:0px 3px; margin:0}
+.view-scoreboard .views-field-field-datetime{border-bottom: 1px solid #959595; font-size:18px; padding-bottom: 6px; margin-bottom: 3px;
+background: url('images/errow.png') no-repeat right 10px;}
+.view-scoreboard .views-field-type{float:right;}
+
+.view-scoreboard .views-field .field-content img{vertical-align:middle;}
+.view-scoreboard .views-field a{color:black;text-decoration:none;}
+.view-scoreboard .views-field a:hover{text-decoration:underline;}
+.view-scoreboard .views-field-field-datetime a{color:#666;}
+.view-scoreboard .views-field-field-term-gender{ color:#c5c5c5; font-size:17px}
+.view-scoreboard .views-field-field-term-sport{background-color:#edebec;font-size:0.85em;}
+.view-scoreboard .views-field-field-term-level{float:right; color:#c5c5c5; font-size:17px}
+
+.view-scoreboard .views-field-field-score-away a { font-size:17px; color:#959595}
+.view-scoreboard .views-field-field-score-home a { font-size:17px; color:#959595}
+.view-scoreboard td{padding:0px;}
+.view-scoreboard table{border:none;}
+.view-scoreboard .float-right {float:right; padding-right:35px;}
+.view-scoreboard .jcarousel-item{
+/*  -webkit-border-radius: 5px;
+     -moz-border-radius: 5px;
+          border-radius: 5px;
+
+  -webkit-box-shadow:0px 0px 3px #666;
+     -moz-box-shadow:0px 0px 3px #666;
+          box-shadow:0px 0px 3px #666;*/
+}
+/*
+#edit-field-term-sport-tid-all{display:none;}
+*/
+
+
+
+
+/**/
+/**
+ * A simple skin for RUS Scoreboard Filter
+ */
+
+.jcarousel-skin-rus-scoreboard-filter {    background: url("images/shadow.png") no-repeat scroll center bottom transparent;
+    font-size: 20px;
+/*    padding-bottom: 27px;*/
+border-bottom:#000 solid 1px;
+    text-transform: uppercase;}
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-container-horizontal {padding: 0px 0px;margin-left:-2px;width:600px;}
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-clip-horizontal {width: 600px;overflow: hidden;}
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-item {
+  overflow: hidden;
+  list-style: none;
+  font-weight:bold;
+  padding:2px 5px 0 10px;
+}
+
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-item a{color: #959595;
+text-decoration:none;}
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-item a.scoreboard-active-trail{color:#DF2003;text-decoration:none;}
+
+
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-item-horizontal {
+  margin: 2px 4px;
+}
+
+
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-item-placeholder {
+  background: #fff url(throbber.gif) no-repeat center center;
+  color: #000;
+}
+
+/**
+ * Buttons
+ */
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-next,
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-prev {
+  display: block;
+  width: 18px;
+  height: 22px;
+  background-image: url(arrows3.png);
+}
+
+
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-prev{background-position: -18px 3px !important;} /*ARROWS*/
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-next{background-position: -12px -21px !important;}
+
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-next-disabled,
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-prev-disabled {
+  display: none;
+}
+
+/**
+ * Horizontal Buttons
+ */
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-prev-horizontal {
+  position: absolute;
+  top: 0px; /*POSITION*/
+  left: -17px;
+  background-position: 0 0;
+}
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-prev-horizontal:hover {
+  background-position: -32px 0;
+}
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-prev-horizontal:active {
+  background-position: -64px 0;
+}
+
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-next-horizontal {
+  position: absolute;
+  top: 0px; /*POSITION*/
+  right: -30px;
+  background-position: 0 -32px;
+}
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-next-horizontal:hover {
+  background-position: -32px -32px;
+}
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-next-horizontal:active {
+  background-position: -64px -32px;
+}
+
+.jcarousel-skin-rus-scoreboard-filter .jcarousel-list-horizontal{
+  height:25px; overflow:hidden;
+}
+
+.scoreboard_filter a{width:100px;display:inline-block;}
+
+
+#block-rus-helper-scoreboard {
+padding-bottom: 27px; background:url("images/shadow.png") no-repeat scroll center bottom transparent}
+
+
+

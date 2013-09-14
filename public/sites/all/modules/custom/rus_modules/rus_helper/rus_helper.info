@@ -1,0 +1,22 @@
+name = RUS Helper
+description = A collection of utility functions, updates, etc for RUS (Rising Up Sports)
+package = RUS
+core = 7.x
+php = 5.2
+version = "7.x-1.0"
+project = "rus_helper"
+
+
+;dependencies[] = INSERT_MODULE
+dependencies[] = jcarousel
+dependencies[] = less
+dependencies[] = workbench
+dependencies[] = workbench_moderation
+dependencies[] = features
+dependencies[] = rus_structure
+dependencies[] = views
+
+
+files[] = rus_helper.module
+;files[] = rus_helper.rules.inc
+files[] = rus_helper.rules_defaults.inc

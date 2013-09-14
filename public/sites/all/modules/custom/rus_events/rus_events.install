@@ -1,0 +1,56 @@
+<?php
+/**
+ * @file rus_events.install
+ * Contains install and update functions for RUS events.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function rus_events_install() {
+  $field = field_info_field('field_livestream_reference');
+  if (empty($field)) {
+    $field = array(
+      'field_name' => 'field_livestream_reference',
+      'label' => 'Livestream',
+      'type' => 'node_reference',
+      'settings' => array(
+        'referenceable_types' => array(
+          'livestream' => 'livestream',
+        ),
+      ),
+      'cardinality' => 1,
+    );
+    field_create_field($field);
+
+    $instance = array(
+      'field_name' => 'field_livestream_reference',
+      'label' => 'Livestream',
+      'type' => 'node_reference',
+      'widget' => array(
+        'type' => 'options_select',
+      ),
+      'entity_type' => 'node',
+      'bundle' => 'event',
+    );
+    field_create_instance($instance);
+  }
+}
+
+/**
+ * Hiding all of the event fields for now.
+ */
+function rus_events_update_7000() {
+  $fields = field_info_instances('node', 'event');
+  foreach ($fields as $field_name => $field_instance) {
+    $field_instance['display']['default']['type'] = 'hidden';
+    field_update_instance($field_instance);
+  }
+}
+
+/**
+ * Remove submitted information from event nodes.
+ */
+function rus_events_update_7001() {
+  variable_set('node_submitted_event', 0);
+}
