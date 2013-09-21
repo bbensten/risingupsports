@@ -20,6 +20,8 @@
     display: inline-block;
   }
 
+  
+  
   #logo h1 a, #logo h2 a {
     display: block;
     float: none;
@@ -112,12 +114,65 @@
 /* Tablet (Portrait) = Design for a width of 730px
 ================================================== */
 
-@media only screen and (min-width: 768px) and (max-width: 959px) {
+@media (max-width: 959px) {
 
   /*main*/
-  #wrap {
-    width: 690px;
+  #wrap, #header  {
+    width: 100%;
   }
+  
+  #footer-area {
+    width: 90%;
+    padding:40px 5%;
+  }
+  
+  .big-video {
+    width: 455px;
+  }
+  
+  #navigation {
+    width: 60%;
+  }
+  
+  #navigation ul {
+    width: 60%;
+    display:none;
+    position: absolute;
+    top: 63px;
+    right: 43px;
+    background: rgba(0,0,0,0.6);
+  }
+  
+  #navigation:hover ul {
+      display:block;
+  }
+  
+  #navigation ul li {
+      float:none;
+      clear:both;
+  }
+  
+  #navigation ul li a {
+      padding:10px;
+      display:block;
+      width:200px;
+      border:2px solid transparent;
+      padding-bottom:5px;
+  }
+  
+  .video-gallery {
+    width: 465px;
+    margin: 0px auto;
+  }
+  
+  h3.section-title {
+    padding: 0 20px;
+  }
+  
+  .bx-wrapper {
+    max-width: 723px;
+  }
+
   #content {
     width: 380px;
   }
@@ -132,7 +187,6 @@
     display: block;
   }
   
-    
   /*footer*/
   .preface-block, .footer-block {
     float: left;
@@ -140,26 +194,70 @@
     margin-right: 20px;
   }
   
-  
-}
+  .jcarousel-clip-horizontal { width: 100% !important; }
+  ui.jcarousel-list-horizontal { height: auto; }
+  ui.jcarousel-list-horizontal:after , ui.jcarousel-list-horizontal:before { content: ''; display: table; line-height:0; clear:both; }
+  .jcarousel-skin-rus-scoreboard .jcarousel-item { padding: 10px 10px; width: 125px !important; }
+  .jcarousel-skin-rus-scoreboard-filter .links li.jcarousel-item a { padding:0 10px; }
 
 
 
 /* Mobile (Portrait) = Design for a width of 280px
 ================================================== */
 
+@media only screen and (max-width: 1100px) {
+
+  /*main*/
+  #wrap, #header , .container  {
+    width: 100%;
+  }
+  
+  #navigation-user , #navigation { margin-right: 10px; }
+
+  
+}
+
+.popUpContainer{ 
+	width:285px; 
+	position:relative;
+	top:700px;
+	left:71px;
+	float:right;
+	background:rgba(59,179,194,0.6); 
+	color:#fff; 
+	border:2px solid #fff; box-shadow: 0px 10px 20px -10px #000;
+}
+
 @media only screen and (max-width: 767px) {
 
   /*main*/
+  #wrap, #header , .container  {
+    width: 100%;
+  }
+  
+  #footer-area {
+    width: 90%;
+    padding:40px 5%;
+  }
+  
+  .big-video {
+    width: 455px;
+  }
+  
+  #navigation {
+    width: 60%;
+  }
+  
   #header-social{
     display: none;
-  }
-  #wrap {
-    width: 280px;
   }
   #content {
     width: 100%;
   }
+  .bx-wrapper {
+    max-width: 500px;
+  }
+
   .node-teaser img {
     float: none;
   }
@@ -196,6 +294,23 @@
     display: block;
   }
   
+  .big-video {
+    clear: both;
+    float: none;
+    margin:0px auto;
+  }
+  
+  .jcarousel-skin-rus-scoreboard .jcarousel-list-horizontal { width:100% !important; }
+  
+  li.slide { width:751px !important}
+  .bx-wrapper .bx-viewport { max-height: 540px !important; }
+  
+  
+  .big-video .iconfree {
+    right: 0;
+    left: auto;
+    }
+  
 }
 
 
@@ -204,10 +319,24 @@
 
     /* Note: Design for a width of 480px */
 
-@media only screen and (min-width: 480px) and (max-width: 767px) {
+@media (max-width: 480px) {
+    
+    body { overflow-x:hidden }
+    
+    #navigation {
+        width: 47%;
+    }
 
-  #wrap {
-    width: 370px;
+  #navigation:focus ul {
+      display:block;
   }
-
+  
+  #navigation ul li a {
+      width:auto;
+  }
+  
+  .bx-wrapper {
+max-width: 320px;
+}
+  
 }
