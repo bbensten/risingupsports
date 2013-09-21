@@ -118,6 +118,15 @@
           <?php if ($title): ?><?php print $title; ?><?php endif; ?>
           <?php print render($title_suffix); ?>
      </div>     </div>
+      
+      
+    <style>
+        body{background: #ebebeb !important;}
+        .innertitle , #main-content { background: none}
+        .page-calendar-created #content {background:white; }
+    </style>
+
+  <div id="main-content" class="clearfix">
     <?php $sidebarclass=" "; if($page['sidebar_first']) { $sidebarclass="sidebar-bg"; } ?>
     <div id="primary" class="container <?php print $sidebarclass; ?> clearfix">
       <section id="content" role="main" class="clearfix" >
@@ -147,8 +156,11 @@
       
     </div>
     </div>
+    </div>
     
-     <?php if ($page['content_bottom']): ?><div style="width:940px; margin:25px 0px 0px 199px;"><?php print render($page['content_bottom']); ?></div><?php endif; ?> 
+      <div class="sliderContainer">
+     <?php if ($page['content_bottom']): ?><div style="width:940px; margin:25px 0px 0px 199px; padding-top:50px"><?php print render($page['content_bottom']); ?></div><?php endif; ?>
+      </div>
     <div class="clear"></div>
   </div>
 

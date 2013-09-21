@@ -8,7 +8,6 @@
  * - $options['type'] will either be ul or ol.
  * @ingroup views_templates
  */
-
 ?>
 
   <div id="home-slider">
@@ -23,16 +22,7 @@
       <img  src="<?php global $base_url; print $base_url;?>/sites/all/themes/risingsports/images/icon-play.png" width="84" height="84" />
       </a>
       </div>
-       		 <?php $active = variable_get('live',0); 
- 		 if($active){
- 		 ?>
- 		 <div class="popUpContainer">
-     		  <a href="http://genevatv.org/event/388/geneva-vs-batavia"><img src="/sites/default/files/gen.png" alt="live Now" /></a> 
-    
-</div>
- 		 <?php } ?>
- 		 
-      
+
       </li>
       
     <?php 
@@ -42,3 +32,5 @@
         </div><!-- /flexslider -->
       </div>
     </div>
+    
+ 		 

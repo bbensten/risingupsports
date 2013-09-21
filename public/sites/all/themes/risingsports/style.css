@@ -257,9 +257,8 @@ border-bottom-right-radius: 3px;
 }
 
 #sidebar {
-  float: right;
+  float: left;
   width: 285px;
-  padding-left:7px;
   width:30.3%;
 }
 
@@ -573,6 +572,7 @@ a:focus {
   z-index: 100;
   left:0;
   right:0;
+  height:96px;
 }
 
 #header{
@@ -823,14 +823,82 @@ a:focus {
 	padding-bottom:1px; 
 }
 
-.popUpContainer { 
-	width:387px; height:143px;
+.popUpContainer{ 
+	width:340px; 
 	position:relative;
-	top:-616px;
-	left:-105px;
+	top:550px;
+	left:560px;
 	float:right;
+	background:rgba(59,179,194,0.6); 
+	color:#fff; 
+	border:2px solid #fff; box-shadow: 0px 10px 20px -10px #000;
 }
 
+#block-views-live-game-popup-block{
+	width:340px; height:136px;
+	position:relative;
+	top:-480px;
+	left:-105px;
+	float:right;
+	
+}
+
+.popHead {
+padding: 10px 5px;
+text-align: center;
+font-size: 15px;}
+.popVs {
+display: table;
+border-top: 1px solid #fff;
+padding: 8px 28px;
+margin: 0px auto 0px auto;
+font-size:15px;
+min-width: 230px;
+text-align: center;
+}
+.popVs span { margin: 0px 15px; }
+.popFoot { 
+	display:table; 
+	margin:0px auto;
+	padding:0px 0px 15px 0px;
+}
+.popFoot .sec-child {
+background: #fff;
+padding: 3px 25px;
+color: #4baeab;
+float:right;
+border-radius: 3px;
+font-size:12px;
+}
+.popFoot .sec-child a{
+background: #fff;
+padding: 0px 18px;
+color: #4baeab;
+float:right;
+border-radius: 3px;
+font-size:12px;
+
+}
+
+.popFoot .first-child {
+background:#ed1c24;
+padding: 0px 7px;
+color:#fff;
+float:left;
+margin-right:6px;
+border-radius: 3px;
+font-size:12px;
+}
+
+.popFoot .first-child a{
+background:#ed1c24;
+padding: 3px 25px;
+color:#fff;
+float:left;
+margin-right:6px;
+border-radius: 3px;
+font-size:12px;
+}
 
 #site-slogan {
   padding: 20px;
@@ -1570,7 +1638,8 @@ ul.inline li {
 /*-------------------------------------------*/
 .tabs-wrapper {
   border-bottom: 1px solid #b7b7b7;
-  margin: 0 0 5px 0;
+  margin: 15px 0px 24px 5px;
+	
 }
 
 ul.primary {
@@ -2547,6 +2616,11 @@ border-radius: 5px;}
 .pricingTableWrapper .span4.selected , .pricingTableWrapper .span4:hover { background:#fbfbfb; border:1px solid #cccccc; }
 .pricingTableWrapper .span4.selected .selectedIcon , .pricingTableWrapper .span4:hover .selectedIcon { display:table; }
 
+.views-widget select{
+	float:left; height:auto; font-size:12px; padding:7px 14px; color:#959595; font-weight:bold;
+}
+
+
 /* ========= Checkout Form
 ================================== */
 
@@ -2848,6 +2922,7 @@ input[type="checkbox"]:focus {
 .page-calendar-created #content{
 
 width: 645px;
+border: 1px solid #959595;
 
 }
 
@@ -2897,7 +2972,7 @@ margin-bottom: .5em;
 z-index: 1;
 }
 
-.views-exposed-form { width:237px; }
+.views-exposed-form { width:237px; margin: 0px 0px 4px 15px; }
 
 .calenderHolder { width:233px; height:233px; margin:30px; }
 
