@@ -92,7 +92,7 @@
           <img src="<?php print $logo; ?>" alt="<?php print t('Home'); ?>" />
         </a></div><?php endif; ?>
       </div>
-      <?php print render($page['header']); ?>
+      
       <nav id="navigation" role="navigation">
         <div id="main-menu">
           <?php 
@@ -105,9 +105,10 @@
           ?>
         </div>
       </nav>
+       <?php print render($page['header']); ?>
     </header>
   </div>
-
+ 
   <div id="main-content" class="clearfix">
   
 	<?php if($page['slider']): ?> <?php print render($page['slider']); ?> <?php endif; ?>
