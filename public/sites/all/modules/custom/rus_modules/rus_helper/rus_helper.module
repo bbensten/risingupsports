@@ -136,6 +136,8 @@ function rus_subscription_form($form, &$form_state){
       '#type' => 'textfield',
       '#size' => 8,
       '#default_value' => 'ZIP/Postal Code',
+      '#attributes' => array('placeholder' => "ZIP/Postal Code",
+   				'onclick' => 'this.value = ""'),
   );
   
   $form['membership_type'] = array(
