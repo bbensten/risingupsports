@@ -109,6 +109,7 @@
     </header>
   </div>
  
+
   <div id="main-content" class="clearfix">
   
 	<?php if($page['slider']): ?> <?php print render($page['slider']); ?> <?php endif; ?>
@@ -141,6 +142,14 @@
         <?php if (theme_get_setting('breadcrumbs')): ?><?php if ($breadcrumb): ?><div id="breadcrumbs"><?php print $breadcrumb; ?></div><?php endif;?><?php endif; ?>
         <?php print $messages; ?>
         <?php if ($page['content_top']): ?><div id="content_top"><?php print render($page['content_top']); ?></div><?php endif; ?>
+      
+       
+         <?php if ($page['content_top_first_col']): ?><div class="content_first_col"><?php print render($page['content_top_first_col']); ?></div><?php endif; ?>
+          
+          <?php if ($page['content_top_second_col']): ?><div class="content_second_col"><?php print render($page['content_top_second_col']); ?></div><?php endif; ?>
+      
+       
+  
         <div id="content-wrap">
           <?php print render($title_prefix); ?>
           <?php if ($title): ?><h1 class="page-title"><?php print $title; ?></h1><?php endif; ?>

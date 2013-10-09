@@ -86,12 +86,7 @@
       <?php endif; ?>
       <?php print render($title_suffix); ?>
   
-      <?php if ($display_submitted): ?>
-        <ul class="meta clearfix">
-          <li><strong>Posted on:</strong> <?php print $date; ?></li>
-          <li><strong>By:</strong> <?php print $name; ?></li>   
-        </ul>
-      <?php endif; ?>
+      
 
     <?php if (!$page): ?>
       </header>
@@ -102,7 +97,7 @@
       // Hide comments and links now so that we can render them later.
       hide($content['comments']);
       hide($content['links']);
-if(!empty($node->not_logged_in)){ 
+      if(!empty($node->not_logged_in)){ 
                        print $node->not_logged_in;
                 }else{
                      print render($content);
@@ -114,6 +109,14 @@ if(!empty($node->not_logged_in)){
       <?php print render($content['links']); ?>
     </footer>
   <?php endif; ?>
+  
+  <?php if ($display_submitted): ?>
+        <ul class="meta clearfix">
+          <li><strong>Posted on:</strong> <?php print $date; ?></li>
+          <li><strong>By:</strong> <?php print $name; ?></li>   
+        </ul>
+      <?php endif; ?>
+      
 
   <?php print render($content['comments']); ?>
 <?php if (!$page): ?>

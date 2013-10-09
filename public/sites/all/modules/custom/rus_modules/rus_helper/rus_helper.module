@@ -1315,3 +1315,12 @@ function rus_helper_field_vimeo_vimeo_helper($entity) {
 
   return $return_value;
 }
+
+
+/**
+ * hook_form_alter()
+ */
+
+function rus_helper_form_event_node_form_alter(&$form, &$form_state, $form_id){
+	drupal_add_js(drupal_get_path('module', 'rus_helper') . '/js/rus_helper.js');
+}
