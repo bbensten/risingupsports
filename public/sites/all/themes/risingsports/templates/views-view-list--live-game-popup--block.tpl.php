@@ -9,9 +9,13 @@
  * @ingroup views_templates
  */
 foreach ($view->result as $key=>$value){
-	
+
 $sportid = $view->result[$key]->_field_data['nid']['entity']->field_term_sport['und'][0]['tid'];
 $sport = taxonomy_term_load($view->result[$key]->_field_data['nid']['entity']->field_term_sport['und'][0]['tid']);
+
+$levelid = $view->result[$key]->_field_data['nid']['entity']->field_term_level['und'][0]['tid'];
+$level = taxonomy_term_load($levelid);
+
 $hometeam = taxonomy_term_load($view->result[$key]->_field_data['nid']['entity']->field_term_team_home['und'][0]['tid']);
 $awayteam = taxonomy_term_load($view->result[$key]->_field_data['nid']['entity']->field_term_team_away['und'][0]['tid']);
 
@@ -27,8 +31,8 @@ if( $curdate >= $start_date && $curdate <= $end_date ){
 		<div class="clearfix"></div>
 
  		 <div class="popUpContainer">
- 		     		   <div class="popHead"><?php print $sport->name; ?></div>
-   					<div class="popVs"><?php print $hometeam->name; ?> <span>VS.</span> <?php print $awayteam->name; ?></div>
+ 		     		   <div class="popHead"><?php print strtoupper($level->name); ?> <?php print strtoupper($sport->name); ?></div>
+   					<div class="popVs"><?php print strtoupper($hometeam->name); ?> <span>VS.</span> <?php print strtoupper($awayteam->name); ?></div>
 				    <div class="popFoot">
    				     <span class="first-child"><a href="<?php print $view->result[$key]->_field_data['nid']['entity']->path['alias']; ?>" > <span class="dot"></span>+ LIVE </a></span>
 			        <span class="sec-child"><a href="<?php print $view->result[$key]->_field_data['nid']['entity']->path['alias']; ?>" >WATCH NOW</a></span>
